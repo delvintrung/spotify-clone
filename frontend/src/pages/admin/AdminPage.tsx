@@ -5,6 +5,7 @@ import { Album, Music } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SongsTabContent from "./components/SongsTabContent";
 import AlbumsTabContent from "./components/AlbumsTabContent";
+import ArtistsTabContent from "./components/ArtistsTabContent";
 import { useEffect } from "react";
 import { useMusicStore } from "@/stores/useMusicStore";
 
@@ -53,6 +54,13 @@ const AdminPage = () => {
             <Album className="mr-2 size-4" />
             Artists
           </TabsTrigger>
+          <TabsTrigger
+            value="artists"
+            className="data-[state=active]:bg-zinc-700"
+          >
+            <Album className="mr-2 size-4" />
+            Users
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="songs">
@@ -62,7 +70,10 @@ const AdminPage = () => {
           <AlbumsTabContent />
         </TabsContent>
         <TabsContent value="artists">
-          <AlbumsTabContent />
+          <ArtistsTabContent />
+        </TabsContent>
+        <TabsContent value="users">
+          <ArtistsTabContent />
         </TabsContent>
       </Tabs>
     </div>
