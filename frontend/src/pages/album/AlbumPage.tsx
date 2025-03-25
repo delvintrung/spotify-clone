@@ -153,7 +153,7 @@ const AlbumPage = () => {
                           </div>
                         </div>
                         <div className="flex items-center">
-                          {song.createdAt.split("T")[0]}
+                          {/* {song.createdAt.split("T")[0]} */}
                         </div>
                         <div className="flex items-center">
                           {formatDuration(song.duration)}
