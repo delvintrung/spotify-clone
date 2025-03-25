@@ -17,7 +17,7 @@ const ArtistsTabContent = () => {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Library className="h-5 w-5 text-violet-500" />
-              Albums Library
+              Artists
             </CardTitle>
             <CardDescription>Manage your album collection</CardDescription>
           </div>

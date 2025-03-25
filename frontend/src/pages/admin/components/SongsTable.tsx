@@ -53,7 +53,7 @@ const SongsTable = () => {
                 />
               </TableCell>
               <TableCell className="font-medium">{song.title}</TableCell>
-              <TableCell>{song.artist}</TableCell>
+              <TableCell>{song.artist.name}</TableCell>
               <TableCell>
                 <span className="inline-flex items-center gap-1 text-zinc-400">
                   <Calendar className="h-4 w-4" />
