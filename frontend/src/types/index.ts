@@ -10,11 +10,11 @@ export interface Song {
   updatedAt: string;
 }
 export interface Artist {
-  _id: string;
+  _id?: string;
   name: string;
-  birthdate: string;
+  birthdate: Date;
   imageUrl: string;
-  genre: Genre[];
+  genre?: Genre[];
 }
 
 export interface Genre {

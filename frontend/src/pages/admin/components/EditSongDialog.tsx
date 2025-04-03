@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/select";
 import { axiosInstance } from "@/lib/axios";
 import { useMusicStore } from "@/stores/useMusicStore";
-import { Plus, Upload } from "lucide-react";
+import { Song } from "@/types";
+import { Plus, Pencil, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -29,7 +30,11 @@ interface NewSong {
   duration: string;
 }
 
-const AddSongDialog = () => {
+interface EditSongDialogProps {
+  currentSong: Song;
+}
+
+const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
   const { albums, artists } = useMusicStore();
   const [songDialogOpen, setSongDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -100,17 +105,16 @@ const AddSongDialog = () => {
   return (
     <Dialog open={songDialogOpen} onOpenChange={setSongDialogOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-emerald-500 hover:bg-emerald-600 text-black">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Song
-        </Button>
+        <div className="flex items-center hover:text-red-300 hover:bg-gray-400/10 p-2 justify-center rounded-sm">
+          <Pencil className="mr-2 h-4 w-4" />
+        </div>
       </DialogTrigger>
 
       <DialogContent className="bg-zinc-900 border-zinc-700 max-h-[80vh] overflow-auto">
         <DialogHeader>
-          <DialogTitle>Add New Song</DialogTitle>
+          <DialogTitle>Edit Song</DialogTitle>
           <DialogDescription>
-            Add a new song to your music library
+            Edit song details and upload new files.
           </DialogDescription>
         </DialogHeader>
 
@@ -152,11 +156,18 @@ const AddSongDialog = () => {
                 </div>
               ) : (
                 <>
-                  <div className="p-3 bg-zinc-800 rounded-full inline-block mb-2">
+                  {/* <div className="p-3 bg-zinc-800 rounded-full inline-block mb-2">
                     <Upload className="h-6 w-6 text-zinc-400" />
                   </div>
                   <div className="text-sm text-zinc-400 mb-2">
                     Upload artwork
+                  </div> */}
+                  <div>
+                    <img
+                      src={currentSong.imageUrl}
+                      alt={currentSong.title}
+                      className="w-[200px]"
+                    />
                   </div>
                   <Button variant="outline" size="sm" className="text-xs">
                     Choose File
@@ -169,7 +180,11 @@ const AddSongDialog = () => {
           {/* Audio upload */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Audio File</label>
-            <div className="flex items-center gap-2">
+            <div className="flex-col justify-center items-center gap-5">
+              {!files.audio && (
+                <audio src={currentSong.audioUrl} controls className="h-10" />
+              )}
+
               <Button
                 variant="outline"
                 onClick={() => audioInputRef.current?.click()}
@@ -177,7 +192,7 @@ const AddSongDialog = () => {
               >
                 {files.audio
                   ? files.audio.name.slice(0, 20)
-                  : "Choose Audio File"}
+                  : "Choose Anothor Audio File"}
               </Button>
             </div>
           </div>
@@ -186,7 +201,8 @@ const AddSongDialog = () => {
           <div className="space-y-2">
             <label className="text-sm font-medium">Title</label>
             <Input
-              value={newSong.title}
+              defaultValue={currentSong.title}
+              //   value={newSong.title}
               onChange={(e) =>
                 setNewSong({ ...newSong, title: e.target.value })
               }
@@ -198,12 +214,13 @@ const AddSongDialog = () => {
             <label className="text-sm font-medium">Artist</label>
             <Select
               value={newSong.artist}
+              defaultValue={currentSong.artist.name || "None"}
               onValueChange={(value) =>
                 setNewSong({ ...newSong, artist: value })
               }
             >
               <SelectTrigger className="bg-zinc-800 border-zinc-700">
-                <SelectValue placeholder="Select artist" />
+                <SelectValue placeholder={currentSong.artist.name} />
               </SelectTrigger>
               <SelectContent className="bg-zinc-800 border-zinc-700">
                 <SelectItem value="none">Không biết</SelectItem>
@@ -221,7 +238,8 @@ const AddSongDialog = () => {
             <Input
               type="number"
               min="0"
-              value={newSong.duration}
+              defaultValue={currentSong.duration}
+              //   value={newSong.duration}
               onChange={(e) =>
                 setNewSong({ ...newSong, duration: e.target.value || "0" })
               }
@@ -268,4 +286,4 @@ const AddSongDialog = () => {
     </Dialog>
   );
 };
-export default AddSongDialog;
+export default EditSongDialog;

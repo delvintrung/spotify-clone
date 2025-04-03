@@ -1,10 +1,11 @@
 import { axiosInstance } from "@/lib/axios";
-import { Album, Song, Stats } from "@/types";
+import { Album, Artist, Song, Stats } from "@/types";
 import toast from "react-hot-toast";
 import { create } from "zustand";
 
 interface MusicStore {
   songs: Song[];
+  artists: Artist[];
   albums: Album[];
   isLoading: boolean;
   error: string | null;
@@ -21,12 +22,15 @@ interface MusicStore {
   fetchTrendingSongs: () => Promise<void>;
   fetchStats: () => Promise<void>;
   fetchSongs: () => Promise<void>;
+  fetchArtists: () => Promise<void>;
   deleteSong: (id: string) => Promise<void>;
+  deleteArtist: (id: string) => Promise<void>;
   deleteAlbum: (id: string) => Promise<void>;
 }
 
 export const useMusicStore = create<MusicStore>((set) => ({
   albums: [],
+  artists: [],
   songs: [],
   isLoading: false,
   error: null,
@@ -77,6 +81,25 @@ export const useMusicStore = create<MusicStore>((set) => ({
       set({ isLoading: false });
     }
   },
+  deleteArtist: async (id) => {
+    set({ isLoading: true, error: null });
+    try {
+      await axiosInstance.delete(`/admin/artists/${id}`);
+      set((state) => ({
+        artists: state.artists.filter((artist) => artist._id !== id),
+        songs: state.songs.map((song) =>
+          song.albumId === state.albums.find((a) => a._id === id)?.title
+            ? { ...song, album: null }
+            : song
+        ),
+      }));
+      toast.success("Album deleted successfully");
+    } catch (error: any) {
+      toast.error("Failed to delete album: " + error.message);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 
   fetchSongs: async () => {
     set({ isLoading: true, error: null });
@@ -108,6 +131,18 @@ export const useMusicStore = create<MusicStore>((set) => ({
     try {
       const response = await axiosInstance.get("/albums");
       set({ albums: response.data });
+    } catch (error: any) {
+      set({ error: error.response.data.message });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchArtists: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axiosInstance.get("/artists");
+      set({ artists: response.data });
     } catch (error: any) {
       set({ error: error.response.data.message });
     } finally {
