@@ -8,7 +8,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useMusicStore } from "@/stores/useMusicStore";
-import { Calendar, Trash2 } from "lucide-react";
+import { Calendar, Trash2, Pencil } from "lucide-react";
+import EditSongDialog from "./EditSongDialog";
 
 const SongsTable = () => {
   const { songs, isLoading, error, deleteSong } = useMusicStore();
@@ -53,7 +54,7 @@ const SongsTable = () => {
                 />
               </TableCell>
               <TableCell className="font-medium">{song.title}</TableCell>
-              <TableCell>{song.artist}</TableCell>
+              <TableCell>{song.artist.name}</TableCell>
               <TableCell>
                 <span className="inline-flex items-center gap-1 text-zinc-400">
                   <Calendar className="h-4 w-4" />
@@ -63,6 +64,7 @@ const SongsTable = () => {
 
               <TableCell className="text-right">
                 <div className="flex gap-2 justify-end">
+                  <EditSongDialog currentSong={song} />
                   <Button
                     variant={"ghost"}
                     size={"sm"}
