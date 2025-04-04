@@ -149,7 +149,7 @@ const AlbumPage = () => {
                             <div className={`font-medium text-white`}>
                               {song.title}
                             </div>
-                            <div>{song.artist}</div>
+                            <div>{song.artist.name}</div>
                           </div>
                         </div>
                         <div className="flex items-center">

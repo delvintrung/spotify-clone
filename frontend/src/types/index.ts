@@ -14,7 +14,7 @@ export interface Artist {
   name: string;
   birthdate: Date;
   imageUrl: string;
-  genre?: Genre[];
+  genres?: Genre[];
 }
 
 export interface Genre {
@@ -54,4 +54,12 @@ export interface User {
   clerkId: string;
   fullName: string;
   imageUrl: string;
+}
+
+export interface Favotite {
+  _id: string;
+  userId: string;
+  songId: Song;
+  createdAt?: string;
+  updatedAt?: string;
 }

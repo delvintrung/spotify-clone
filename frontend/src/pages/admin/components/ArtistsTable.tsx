@@ -25,7 +25,7 @@ const ArtistsTable = () => {
           <TableHead className="w-[50px]"></TableHead>
           <TableHead>Name</TableHead>
           <TableHead>Birthdate</TableHead>
-          <TableHead>Songs</TableHead>
+          <TableHead>Genres</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -47,12 +47,15 @@ const ArtistsTable = () => {
                   {artist.birthdate.toString()}
                 </span>
               </TableCell>
-              {/* <TableCell>
+              <TableCell>
                 <span className="inline-flex items-center gap-1 text-zinc-400">
-                  <Music className="h-4 w-4" />
-                  {album.songs.length} songs
+                  {artist.genres?.map((gen) => (
+                    <span key={gen._id} className="text-sm text-zinc-400">
+                      ,{gen.name}
+                    </span>
+                  ))}
                 </span>
-              </TableCell> */}
+              </TableCell>
               <TableCell className="text-right">
                 <div className="flex gap-2 justify-end">
                   <Button

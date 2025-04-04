@@ -1,15 +1,17 @@
 import { Song } from "../models/song.model.js";
-import { Artist } from "../models/artist.model.js";
-import { Genre } from "../models/genre.model.js";
+import { User } from "../models/user.model.js";
+import { Favorite } from "../models/favorite.model.js";
 
-export const getAllArtist = async (req, res, next) => {
+export const getFavoriteById = async (req, res, next) => {
   try {
     // -1 = Descending => newest -> oldest
     // 1 = Ascending => oldest -> newest
-    const artists = await Artist.find()
-      .populate("genres")
+    const userId = req.query.userId;
+
+    const favorites = await Favorite.find({ clerkId: userId })
+      .populate("songId")
       .sort({ createdAt: -1 });
-    res.json(artists);
+    res.json(favorites);
   } catch (error) {
     next(error);
   }
