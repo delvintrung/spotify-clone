@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Tooltip } from "flowbite-react";
-
+import { useMusicStore } from "@/stores/useMusicStore";
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = Math.floor(seconds % 60);
@@ -26,9 +26,11 @@ const formatTime = (seconds: number) => {
 export const PlaybackControls = () => {
   const { currentSong, isPlaying, togglePlay, playNext, playPrevious } =
     usePlayerStore();
+  const { favorites } = useMusicStore();
 
   const [volume, setVolume] = useState(75);
   const [currentTime, setCurrentTime] = useState(0);
+  const [isFavourite, setIsFavourite] = useState(false);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -49,6 +51,11 @@ export const PlaybackControls = () => {
     };
 
     audio.addEventListener("ended", handleEnded);
+    favorites.map((favourite) => {
+      if (favourite.songId._id === currentSong?._id) {
+        setIsFavourite(true);
+      }
+    });
 
     return () => {
       audio.removeEventListener("timeupdate", updateTime);
@@ -141,8 +148,15 @@ export const PlaybackControls = () => {
                 size="icon"
                 variant="ghost"
                 className="hover:text-white text-zinc-400"
+                onClick={() => {
+                  setIsFavourite(!isFavourite);
+                }}
               >
-                <BookHeart className="h-4 w-4" />
+                {isFavourite ? (
+                  <BookHeart color="#0bb135" className="h-4 w-4" />
+                ) : (
+                  <BookHeart className="h-4 w-4" />
+                )}
               </Button>
             </Tooltip>
           </div>

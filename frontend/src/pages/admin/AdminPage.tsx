@@ -8,16 +8,18 @@ import AlbumsTabContent from "./components/AlbumsTabContent";
 import ArtistsTabContent from "./components/ArtistsTabContent";
 import { useEffect } from "react";
 import { useMusicStore } from "@/stores/useMusicStore";
+import UsersTabContent from "./components/UsersTabContent";
 
 const AdminPage = () => {
   const { isAdmin, isLoading } = useAuthStore();
 
-  const { fetchAlbums, fetchSongs, fetchStats } = useMusicStore();
+  const { fetchAlbums, fetchSongs, fetchStats, fetchArtists } = useMusicStore();
 
   useEffect(() => {
     fetchAlbums();
     fetchSongs();
     fetchStats();
+    fetchArtists();
   }, [fetchAlbums, fetchSongs, fetchStats]);
 
   if (!isAdmin && !isLoading) return <div>Unauthorized</div>;
@@ -55,7 +57,7 @@ const AdminPage = () => {
             Artists
           </TabsTrigger>
           <TabsTrigger
-            value="artists"
+            value="users"
             className="data-[state=active]:bg-zinc-700"
           >
             <Album className="mr-2 size-4" />
@@ -73,7 +75,7 @@ const AdminPage = () => {
           <ArtistsTabContent />
         </TabsContent>
         <TabsContent value="users">
-          <ArtistsTabContent />
+          <UsersTabContent />
         </TabsContent>
       </Tabs>
     </div>

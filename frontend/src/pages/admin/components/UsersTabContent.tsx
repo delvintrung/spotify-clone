@@ -6,11 +6,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Library } from "lucide-react";
-import AlbumsTable from "./AlbumsTable";
 import AddArtistDialog from "./AddArtistDialog";
 import ArtistsTable from "./ArtistsTable";
 
-const ArtistsTabContent = () => {
+const UsersTabContent = () => {
   return (
     <Card className="bg-zinc-800/50 border-zinc-700/50">
       <CardHeader>
@@ -32,4 +31,4 @@ const ArtistsTabContent = () => {
     </Card>
   );
 };
-export default ArtistsTabContent;
+export default UsersTabContent;
