@@ -6,7 +6,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Library } from "lucide-react";
-import AlbumsTable from "./AlbumsTable";
 import AddArtistDialog from "./AddArtistDialog";
 import ArtistsTable from "./ArtistsTable";
 

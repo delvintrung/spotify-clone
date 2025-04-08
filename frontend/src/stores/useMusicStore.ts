@@ -1,6 +1,5 @@
 import { axiosInstance } from "@/lib/axios";
 import { Album, Artist, Favotite, Song, Stats } from "@/types";
-import { Factory } from "react";
 import toast from "react-hot-toast";
 import { create } from "zustand";
 
@@ -29,6 +28,8 @@ interface MusicStore {
   deleteSong: (id: string) => Promise<void>;
   deleteArtist: (id: string) => Promise<void>;
   deleteAlbum: (id: string) => Promise<void>;
+  addToFavorites: (songId: string, clerkId: string) => Promise<void>;
+  removeFromFavorites: (songId: string, clerkId: string) => Promise<void>;
 }
 
 export const useMusicStore = create<MusicStore>((set) => ({
@@ -211,6 +212,43 @@ export const useMusicStore = create<MusicStore>((set) => ({
     try {
       const response = await axiosInstance.get("/songs/trending");
       set({ trendingSongs: response.data });
+    } catch (error: any) {
+      set({ error: error.response.data.message });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  addToFavorites: async (songId, clerkId) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axiosInstance.post("/favorites", {
+        songId,
+        clerkId,
+      });
+      set((state) => ({
+        favorites: [...state.favorites, response.data],
+      }));
+      toast.success("Added to favorites");
+    } catch (error: any) {
+      set({ error: error.response.data.message });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  removeFromFavorites: async (songId, clerkId) => {
+    set({ isLoading: true, error: null });
+    try {
+      await axiosInstance.delete("/favorites", {
+        data: { songId, clerkId },
+      });
+      set((state) => ({
+        favorites: state.favorites.filter(
+          (favorite) => favorite.songId._id !== songId
+        ),
+      }));
+      toast.success("Removed from favorites");
     } catch (error: any) {
       set({ error: error.response.data.message });
     } finally {

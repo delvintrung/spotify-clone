@@ -19,7 +19,7 @@ import {
 import { axiosInstance } from "@/lib/axios";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { Song } from "@/types";
-import { Plus, Pencil, Upload } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -27,7 +27,7 @@ interface NewSong {
   title: string;
   artist: string;
   album: string;
-  duration: string;
+  duration?: string;
 }
 
 interface EditSongDialogProps {
@@ -61,40 +61,56 @@ const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
     setIsLoading(true);
 
     try {
-      if (!files.audio || !files.image) {
-        return toast.error("Please upload both audio and image files");
-      }
-
       const formData = new FormData();
 
-      formData.append("title", newSong.title);
-      formData.append("artist", newSong.artist);
-      formData.append("duration", newSong.duration);
+      formData.append(
+        "title",
+        newSong.title != "" ? newSong.title : currentSong.title
+      );
+      formData.append(
+        "artist",
+        newSong.artist !== "" ? newSong.artist : currentSong.artist._id ?? ""
+      );
+      formData.append(
+        "duration",
+        newSong.duration || currentSong.duration + ""
+      );
+
       if (newSong.album && newSong.album !== "none") {
         formData.append("albumId", newSong.album);
       }
+      if (audioInputRef.current?.files) {
+        formData.append("audioFile", audioInputRef.current.files[0]);
+      }
+      if (imageInputRef.current?.files) {
+        formData.append("imageFile", imageInputRef.current.files[0]);
+      }
 
-      formData.append("audioFile", files.audio);
-      formData.append("imageFile", files.image);
+      const res = await axiosInstance.put(
+        `/admin/songs?id=${currentSong._id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (res.status !== 200) {
+        throw new Error("Failed to edit song");
+      } else {
+        setNewSong({
+          title: "",
+          artist: "",
+          album: "",
+          duration: "0",
+        });
 
-      await axiosInstance.post("/admin/songs", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      setNewSong({
-        title: "",
-        artist: "",
-        album: "",
-        duration: "0",
-      });
-
-      setFiles({
-        audio: null,
-        image: null,
-      });
-      toast.success("Song added successfully");
+        setFiles({
+          audio: null,
+          image: null,
+        });
+        toast.success("Song edit successfully");
+      }
     } catch (error: any) {
       toast.error("Failed to add song: " + error.message);
     } finally {
@@ -279,7 +295,7 @@ const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={isLoading}>
-            {isLoading ? "Uploading..." : "Add Song"}
+            {isLoading ? "Uploading..." : "Edit Song"}
           </Button>
         </DialogFooter>
       </DialogContent>

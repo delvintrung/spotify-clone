@@ -93,7 +93,7 @@ const AddArtistDialog = () => {
                 setNewArtist({ ...newArtist, name: e.target.value })
               }
               className="bg-zinc-800 border-zinc-700"
-              placeholder="Enter album title"
+              placeholder="Enter name"
             />
           </div>
           <div className="space-y-2">

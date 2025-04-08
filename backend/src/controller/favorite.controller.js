@@ -17,6 +17,51 @@ export const getFavoriteById = async (req, res, next) => {
   }
 };
 
+export const addToFavorite = async (req, res, next) => {
+  try {
+    const { clerkId, songId } = req.body;
+    console.log("addToFavorite", clerkId, songId);
+
+    const existingFavorite = await Favorite.findOne({
+      clerkId,
+      songId,
+    });
+
+    if (existingFavorite) {
+      return res.status(400).json({ message: "Song already in favorites" });
+    }
+
+    const favorite = new Favorite({
+      clerkId,
+      songId,
+    });
+
+    await favorite.save();
+
+    res.status(201).json(favorite);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const removeFromFavorites = async (req, res, next) => {
+  try {
+    const { songId, userId } = req.body;
+    const existingFavorite = await Favorite.findOne({
+      clerkId: userId,
+      songId,
+    });
+    if (!existingFavorite) {
+      return res.status(404).json({ message: "Favorite not found" });
+    } else {
+      await Favorite.deleteOne({ clerkId: userId, songId });
+      return res.status(200).json({ message: "Favorite removed" });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getFeaturedSongs = async (req, res, next) => {
   try {
     // fetch 6 random songs using mongodb's aggregation pipeline

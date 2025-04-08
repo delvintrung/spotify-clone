@@ -3,6 +3,7 @@ import {
   checkAdmin,
   createAlbum,
   createSong,
+  updateSong,
   deleteAlbum,
   deleteSong,
 } from "../controller/admin.controller.js";
@@ -16,6 +17,7 @@ router.use(requireAdmin);
 router.get("/check", checkAdmin);
 
 router.post("/songs", createSong);
+router.put("/songs", updateSong);
 router.post("/artists", createArtist);
 router.delete("/songs/:id", deleteSong);
 
