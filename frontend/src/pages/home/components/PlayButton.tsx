@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 import { Song } from "@/types";
-import { Pause, Play } from "lucide-react";
+import { Pause, Play, Lock } from "lucide-react";
 
 const PlayButton = ({ song }: { song: Song }) => {
   const { currentSong, isPlaying, setCurrentSong, togglePlay } =
@@ -22,6 +22,7 @@ const PlayButton = ({ song }: { song: Song }) => {
           isCurrentSong ? "opacity-100" : "opacity-0 group-hover:opacity-100"
         }`}
     >
+      <Lock />
       {isCurrentSong && isPlaying ? (
         <Pause className="size-5 text-black" />
       ) : (
