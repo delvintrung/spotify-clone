@@ -8,6 +8,7 @@ export interface Song {
   duration: number;
   createdAt: string;
   updatedAt: string;
+  premium?: number;
 }
 export interface Artist {
   _id?: string;

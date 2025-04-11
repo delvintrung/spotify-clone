@@ -2,6 +2,7 @@ import { Song } from "@/types";
 import SectionGridSkeleton from "./SectionGridSkeleton";
 import { Button } from "@/components/ui/button";
 import PlayButton from "./PlayButton";
+import { Lock } from "lucide-react";
 
 type SectionGridProps = {
   title: string;
@@ -27,7 +28,11 @@ const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
         {songs.map((song) => (
           <div
             key={song._id}
-            className="bg-zinc-800/40 p-4 rounded-md hover:bg-zinc-700/40 transition-all group cursor-pointer"
+            className={`bg-zinc-800/40 p-4 rounded-md  ${
+              song.premium == 1
+                ? ""
+                : "transition-all cursor-pointer hover:bg-zinc-700/40"
+            } group `}
           >
             <div className="relative mb-4">
               <div className="aspect-square rounded-md shadow-lg overflow-hidden">
@@ -38,7 +43,16 @@ const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
 									group-hover:scale-105"
                 />
               </div>
-              <PlayButton song={song} />
+              <div className="relative">
+                {song?.premium == 1 ? (
+                  <Lock
+                    className="absolute top-[-170px] left-2 z-30"
+                    size={30}
+                    color="green"
+                  />
+                ) : null}
+                <PlayButton song={song} />
+              </div>
             </div>
             <h3 className="font-medium mb-2 truncate">{song.title}</h3>
             {song.artist && (

@@ -34,6 +34,7 @@ export const getFeaturedSongs = async (req, res, next) => {
           artist: { $arrayElemAt: ["$artist", 0] },
           imageUrl: 1,
           audioUrl: 1,
+          premium: 1,
         },
       },
     ]);
@@ -65,6 +66,7 @@ export const getMadeForYouSongs = async (req, res, next) => {
           artist: { $arrayElemAt: ["$artist", 0] },
           imageUrl: 1,
           audioUrl: 1,
+          premium: 1,
         },
       },
     ]);
@@ -96,6 +98,7 @@ export const getTrendingSongs = async (req, res, next) => {
           artist: { $arrayElemAt: ["$artist", 0] },
           imageUrl: 1,
           audioUrl: 1,
+          premium: 1,
         },
       },
     ]);
