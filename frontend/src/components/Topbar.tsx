@@ -5,9 +5,21 @@ import SignInOAuthButtons from "./SignInOAuthButtons";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "./ui/button";
+import BuyPremiumButton from "./BuyPremiumButton";
+import { useEffect } from "react";
+import PremiumCircle from "./PremiumCircle";
 
 const Topbar = () => {
-  const { isAdmin } = useAuthStore();
+  const { isAdmin, isPremium } = useAuthStore();
+
+  useEffect(() => {
+    const checkPremiumStatus = async () => {
+      await useAuthStore.getState().checkPremiumStatus();
+    };
+    checkPremiumStatus();
+  }, []);
+
+  console.log("Premium status:", isPremium);
 
   return (
     <div
@@ -20,6 +32,7 @@ const Topbar = () => {
         Spotify
       </div>
       <div className="flex items-center gap-4">
+        <BuyPremiumButton isPremium={isPremium} />
         {isAdmin && (
           <Link
             to={"/admin"}
@@ -34,7 +47,11 @@ const Topbar = () => {
           <SignInOAuthButtons />
         </SignedOut>
 
-        <UserButton />
+        <div className="relative ">
+          {isPremium && <PremiumCircle />}
+
+          <UserButton />
+        </div>
       </div>
     </div>
   );

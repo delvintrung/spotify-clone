@@ -20,6 +20,7 @@ import { useMusicStore } from "@/stores/useMusicStore";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 import { Playlist, Song } from "@/types";
 import { axiosInstance } from "@/lib/axios";
+import { useUser } from "@clerk/clerk-react";
 
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
@@ -30,10 +31,10 @@ const formatTime = (seconds: number) => {
 const MyAlbum = () => {
   const [songSeleted, setSongSeleted] = useState<Song | null>(null);
   const { currentSong, setCurrentSong, togglePlay } = usePlayerStore();
-
   const { songs, fetchSongs } = useMusicStore();
   const { initializeQueue } = usePlayerStore();
   const { playlistId } = useParams();
+  const { user } = useUser();
   const [playlist, setPlaylist] = useState<Playlist>();
   const isCurrentSong = currentSong?._id === songSeleted?._id;
 
@@ -79,9 +80,11 @@ const MyAlbum = () => {
         <div className="mt-10 mb-5 flex px-10 gap-5">
           <div className="w-40 h-40 bg-white shadow-lg rounded-lg"></div>
           <div className="mt-20">
-            <p className="text-sm text-gray-300">Public playlist</p>
-            <h2 className="text-3xl font-bold text-gray-300">My Album</h2>
-            <p className="text-gray-300">Delvin Trung</p>
+            <p className="text-sm text-gray-300">{playlist?.title}</p>
+            <h2 className="text-3xl font-bold text-gray-300">
+              {playlist?.title}
+            </h2>
+            <p className="text-gray-300">{user?.fullName}</p>
           </div>
         </div>
       </div>
