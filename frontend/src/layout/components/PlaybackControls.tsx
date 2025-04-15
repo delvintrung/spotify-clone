@@ -17,6 +17,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Tooltip } from "flowbite-react";
 import { useMusicStore } from "@/stores/useMusicStore";
+import { useUser } from "@clerk/clerk-react";
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = Math.floor(seconds % 60);
@@ -26,12 +27,14 @@ const formatTime = (seconds: number) => {
 export const PlaybackControls = () => {
   const { currentSong, isPlaying, togglePlay, playNext, playPrevious } =
     usePlayerStore();
-  const { favorites } = useMusicStore();
+  const { favorites, addToFavorites, removeFromFavorites } = useMusicStore();
 
   const [volume, setVolume] = useState(75);
   const [currentTime, setCurrentTime] = useState(0);
   const [isFavourite, setIsFavourite] = useState(false);
   const [duration, setDuration] = useState(0);
+  const { user } = useUser();
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -150,6 +153,19 @@ export const PlaybackControls = () => {
                 className="hover:text-white text-zinc-400"
                 onClick={() => {
                   setIsFavourite(!isFavourite);
+                  if (!isFavourite) {
+                    if (currentSong?._id) {
+                      if (user?.id) {
+                        addToFavorites(currentSong._id, user.id);
+                      }
+                    }
+                  } else {
+                    if (currentSong?._id) {
+                      if (user?.id) {
+                        removeFromFavorites(currentSong._id, user.id);
+                      }
+                    }
+                  }
                 }}
               >
                 {isFavourite ? (

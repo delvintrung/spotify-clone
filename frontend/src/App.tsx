@@ -10,6 +10,7 @@ import AdminPage from "./pages/admin/AdminPage";
 import { Toaster } from "react-hot-toast";
 import NotFoundPage from "./pages/404/NotFoundPage";
 import FavouriteSong from "./pages/favorite/FavouriteSong";
+import MyAlbum from "./pages/home/components/MyAlbum";
 
 function App() {
 	return (
@@ -27,16 +28,17 @@ function App() {
         <Route path="/admin" element={<AdminPage />} />
 
         <Route element={<MainLayout />}>
-			<Route path="/" element={<HomePage />} />
-			<Route path="/favourite" element={<FavouriteSong />} />
-			<Route path="/chat" element={<ChatPage />} />
-			<Route path="/albums/:albumId" element={<AlbumPage />} />
-			<Route path="*" element={<NotFoundPage />} />
-			</Route>
-		</Routes>
-		<Toaster />
-		</>
-	);
+          <Route path="/" element={<HomePage />} />
+          <Route path="/favourite" element={<FavouriteSong />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/albums/:albumId" element={<AlbumPage />} />
+          <Route path="/playlists/:playlistId" element={<MyAlbum />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+      </Routes>
+      <Toaster />
+    </>
+  );
 }
 
 export default App;
