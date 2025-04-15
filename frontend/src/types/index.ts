@@ -25,6 +25,16 @@ export interface Genre {
   imageUrl: string;
 }
 
+export interface Playlist {
+  _id: string;
+  clerkId: string;
+  title: string;
+  avatar: string;
+  createdAt: string;
+  updatedAt: string;
+  songs: Song[];
+}
+
 export interface Album {
   _id: string;
   title: string;

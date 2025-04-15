@@ -3,7 +3,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useMusicStore } from "@/stores/useMusicStore";
-import { SignedIn } from "@clerk/clerk-react";
+import { SignedIn, useUser } from "@clerk/clerk-react";
 import {
   HomeIcon,
   Library,
@@ -18,15 +18,34 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+import { axiosInstance } from "@/lib/axios";
+
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const LeftSidebar = () => {
-  const { albums, fetchAlbums, isLoading } = useMusicStore();
+  const { albums, playlists, fetchAlbums, fetchPlaylists, isLoading } =
+    useMusicStore();
+  const { user } = useUser();
 
   useEffect(() => {
     fetchAlbums();
-  }, [fetchAlbums]);
+    fetchPlaylists(user?.id!);
+  }, [fetchAlbums, fetchPlaylists]);
+
+  const handleCreatePlaylist = () => {
+    axiosInstance
+      .post("/playlist", {
+        title: `Playlist ${user?.fullName!}`,
+        clerkId: user?.id,
+      })
+      .then(() => {
+        fetchAlbums();
+      })
+      .catch((error) => {
+        console.error("Error creating playlist:", error);
+      });
+  };
 
   return (
     <div className="h-full flex flex-col gap-2">
@@ -90,7 +109,7 @@ const LeftSidebar = () => {
           </div>
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger onClick={handleCreatePlaylist}>
                 <CirclePlus />
               </TooltipTrigger>
               <TooltipContent>
@@ -99,6 +118,35 @@ const LeftSidebar = () => {
             </Tooltip>
           </TooltipProvider>
         </div>
+
+        <ScrollArea className="">
+          <div className="space-y-2">
+            {isLoading ? (
+              <PlaylistSkeleton />
+            ) : (
+              playlists.map((playlist) => (
+                <Link
+                  to={`/playlists/${playlist._id}`}
+                  key={playlist._id}
+                  className="p-2 hover:bg-zinc-800 rounded-md flex items-center gap-3 group cursor-pointer"
+                >
+                  <img
+                    src={playlist.avatar}
+                    alt="Playlist img"
+                    className="size-12 rounded-md flex-shrink-0 object-cover"
+                  />
+
+                  <div className="flex-1 min-w-0 hidden md:block">
+                    <p className="font-medium truncate">{playlist.title}</p>
+                    <p className="text-sm text-zinc-400 truncate">
+                      Album • {user?.fullName}
+                    </p>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+        </ScrollArea>
 
         <ScrollArea className="h-[calc(100vh-300px)]">
           <div className="space-y-2">

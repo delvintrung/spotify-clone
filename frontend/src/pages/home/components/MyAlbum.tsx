@@ -1,8 +1,7 @@
 import { EllipsisVertical, AlignJustify, List, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import SectionGridSkeleton from "./SectionGridSkeleton";
+import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import ButtonPlayCustom from "./ButtonPlayCustom";
 import {
   Tooltip,
   TooltipContent,
@@ -19,15 +18,54 @@ import { Separator } from "@radix-ui/react-separator";
 import { Input } from "@/components/ui/input";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { usePlayerStore } from "@/stores/usePlayerStore";
-import { Song } from "@/types";
+import { Playlist, Song } from "@/types";
+import { axiosInstance } from "@/lib/axios";
+
+const formatTime = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+};
 
 const MyAlbum = () => {
-  //   if (isLoading) return <SectionGridSkeleton />;
-  const { songs, fetchSongs, isLoading } = useMusicStore();
+  const [songSeleted, setSongSeleted] = useState<Song | null>(null);
+  const { currentSong, setCurrentSong, togglePlay } = usePlayerStore();
+
+  const { songs, fetchSongs } = useMusicStore();
   const { initializeQueue } = usePlayerStore();
+  const { playlistId } = useParams();
+  const [playlist, setPlaylist] = useState<Playlist>();
+  const isCurrentSong = currentSong?._id === songSeleted?._id;
+
+  const handlePlay = () => {
+    if (isCurrentSong) togglePlay();
+    else setCurrentSong(songSeleted);
+  };
   useEffect(() => {
     fetchSongs();
   }, [fetchSongs]);
+
+  const fetchPlaylistById = async (playlistId: string) => {
+    try {
+      const response = await axiosInstance.get(`/playlist/${playlistId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching playlist:", error);
+    }
+  };
+
+  useEffect(() => {
+    const getPlaylist = async () => {
+      if (playlistId) {
+        const data = await fetchPlaylistById(playlistId);
+        setPlaylist(data);
+      }
+    };
+
+    if (playlistId) {
+      getPlaylist();
+    }
+  }, [playlistId]);
 
   useEffect(() => {
     if (songs.length > 0) {
@@ -50,43 +88,32 @@ const MyAlbum = () => {
 
       <div className="">
         <HeaderAlbum />
-        {/* {songs.map((song) => (
-          <div
-            key={song._id}
-            className={`bg-zinc-800/40 p-4 rounded-md  ${
-              song.premium == 1
-                ? ""
-                : "transition-all cursor-pointer hover:bg-zinc-700/40"
-            } group `}
-          >
-            <div className="relative mb-4">
-              <div className="aspect-square rounded-md shadow-lg overflow-hidden">
-                <img
-                  src={song.imageUrl}
-                  alt={song.title}
-                  className="w-full h-full object-cover transition-transform duration-300 
-                                group-hover:scale-105"
-                />
+        {playlist?.songs?.length! > 0 &&
+          playlist?.songs.map((song) => (
+            <div
+              key={song._id}
+              className="flex items-center justify-between px-20 py-2 rounded-sm h-18 hover:cursor-pointer"
+              onClick={() => {
+                setSongSeleted(song);
+                handlePlay();
+              }}
+            >
+              <div className="font-medium flex items-center gap-4">
+                <div>
+                  <img src={song.imageUrl} className="w-14" />
+                </div>
+                <div>
+                  <p className="text-xl ">{song.title}</p>
+                  <p className="text-xs text-zinc-400">{song.artist.name}</p>
+                </div>
               </div>
-              <div className="relative">
-                {song?.premium == 1 ? (
-                  <Lock
-                    className="absolute top-[-170px] left-2 z-30"
-                    size={30}
-                    color="green"
-                  />
-                ) : null}
-                <PlayButton song={song} />
+              <div className="flex items-center gap-4">
+                <div className="text-xs text-zinc-400">
+                  {formatTime(song.duration)}
+                </div>
               </div>
             </div>
-            <h3 className="font-medium mb-2 truncate">{song.title}</h3>
-            {song.artist && (
-              <p className="text-sm text-zinc-400 truncate">
-                {song.artist.name}
-              </p>
-            )}
-          </div>
-        ))} */}
+          ))}
         <SongFiilter songs={songs} />
       </div>
     </div>
@@ -101,6 +128,7 @@ const SongFiilter = ({ songs }: { songs: Song[] }) => {
   const [songSeleted, setSongSeleted] = useState<Song | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const isCurrentSong = currentSong?._id === songSeleted?._id;
+  const { playlistId } = useParams();
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const term = event.target.value.toLowerCase();
@@ -115,10 +143,13 @@ const SongFiilter = ({ songs }: { songs: Song[] }) => {
     else setCurrentSong(songSeleted);
   };
 
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  const handleAddToPlaylist = async (songId: string) => {
+    try {
+      await axiosInstance.patch(`/playlist/add_song`, { songId, playlistId });
+      console.log("Song added to playlist successfully");
+    } catch (error) {
+      console.error("Error adding song to playlist:", error);
+    }
   };
 
   return (
@@ -175,7 +206,12 @@ const SongFiilter = ({ songs }: { songs: Song[] }) => {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger className="cursor-pointer">
-                        <Button variant="ghost">Add</Button>
+                        <Button
+                          variant="ghost"
+                          onClick={() => handleAddToPlaylist(song._id)}
+                        >
+                          Add
+                        </Button>
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Add to playlist</p>

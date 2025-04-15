@@ -32,7 +32,7 @@ function App() {
           <Route path="/favourite" element={<FavouriteSong />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/albums/:albumId" element={<AlbumPage />} />
-          <Route path="/playlist/:playlistId" element={<MyAlbum />} />
+          <Route path="/playlists/:playlistId" element={<MyAlbum />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
