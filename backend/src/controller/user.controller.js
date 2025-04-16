@@ -32,8 +32,7 @@ export const getMessages = async (req, res, next) => {
 export const getUserByUserId = async (req, res, next) => {
   try {
     const userId = req.auth.userId;
-    console.log(req.auth.userId);
-    const user = await User.findOne({ userId });
+    const user = await User.findOne({ clerkId: userId });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -46,13 +45,18 @@ export const getUserByUserId = async (req, res, next) => {
 export const buyPremiumSuccess = async (req, res, next) => {
   try {
     const userId = req.auth.userId;
-    console.log(req.auth.userId);
-    const user = await User.findOne({ userId });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    console.log(req.auth);
+    if (userId) {
+      const userUpdate = await User.updateOne(
+        { clerkId: userId },
+        { $set: { isPremium: true } }
+      );
+      if (!userUpdate) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.status(200).json({ userUpdate, message: "Premium status updated" });
     }
-    user.isPremium = true;
-    await user.save();
     res.status(200).json({ message: "Premium status updated" });
   } catch (error) {
     next(error);

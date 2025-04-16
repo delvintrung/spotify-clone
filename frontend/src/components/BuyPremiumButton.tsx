@@ -1,13 +1,5 @@
 import { Crown } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import PayPalButton from "./PaypalButton";
 
 interface BuyPremiumButtonProps {
@@ -17,9 +9,11 @@ interface BuyPremiumButtonProps {
 const BuyPremiumButton = ({ isPremium }: BuyPremiumButtonProps) => {
   return (
     <div
-      className={`relative flex items-center justify-center w-24 h-5 bg-transparent rounded-lg  border-amber-400 border-2 hover:bg-amber-400 hover:text-white transition-all duration-300 ease-in-out group ${
-        isPremium ? "hidden" : "text-white"
-      }`}
+      className={`relative flex items-center justify-center w-24 h-5 bg-transparent rounded-lg
+          border-amber-400 border-2 hover:bg-amber-400 hover:text-white transition-all 
+          duration-300 ease-in-out group hover:cursor-pointer ${
+            isPremium ? "hidden" : "text-white"
+          }`}
     >
       <Dialog>
         <DialogTrigger asChild>
