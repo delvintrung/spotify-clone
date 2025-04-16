@@ -13,11 +13,13 @@ import {
   SkipForward,
   Volume1,
   BookHeart,
+  CloudDownload,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Tooltip } from "flowbite-react";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { useUser } from "@clerk/clerk-react";
+import { Link } from "react-router-dom";
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = Math.floor(seconds % 60);
@@ -71,6 +73,12 @@ export const PlaybackControls = () => {
     if (audioRef.current) {
       audioRef.current.currentTime = value[0];
     }
+  };
+
+  const handleDownload = () => {
+    return currentSong?.audioUrl
+      ? currentSong.audioUrl.split("upload/").join("upload/fl_attachment/")
+      : "#";
   };
 
   return (
@@ -173,6 +181,20 @@ export const PlaybackControls = () => {
                 ) : (
                   <BookHeart className="h-4 w-4" />
                 )}
+              </Button>
+            </Tooltip>
+            <Tooltip content="Download MP3" placement="top">
+              <Button
+                size="icon"
+                variant="ghost"
+                className="hover:text-white text-zinc-400"
+                onClick={() => {
+                  if (currentSong) {
+                    window.open(handleDownload(), "_blank");
+                  }
+                }}
+              >
+                <CloudDownload />
               </Button>
             </Tooltip>
           </div>
