@@ -19,12 +19,11 @@ const ButtonPlayCustom = ({ song }: { song: Song }) => {
       variant={"ghost"}
       onClick={handlePlay}
       className={`absolute bottom-3 right-2 ${
-        song.premium == 1
-          ? ""
-          : "transition-all  opacity-0 translate-y-2 group-hover:translate-y-0"
-      } hover:scale-105  
-				 opacity-100`}
-      disabled={song.premium == 1 ? true : false}
+        song.premium
+          ? "opacity-0"
+          : "transition-all opacity-0 translate-y-2 group-hover:translate-y-0"
+      } hover:scale-105`}
+      disabled={song.premium ? true : false}
     >
       {isCurrentSong && isPlaying ? (
         <Pause color="#ffffff" className="size-5 text-white " />

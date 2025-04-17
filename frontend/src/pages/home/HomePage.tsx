@@ -5,8 +5,10 @@ import FeaturedSection from "./components/FeaturedSection";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SectionGrid from "./components/SectionGrid";
 import { usePlayerStore } from "@/stores/usePlayerStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const HomePage = () => {
+  const { isPremium } = useAuthStore();
   const {
     fetchFeaturedSongs,
     fetchMadeForYouSongs,
@@ -44,18 +46,20 @@ const HomePage = () => {
           <h1 className="text-2xl sm:text-3xl font-bold mb-6">
             Good afternoon
           </h1>
-          <FeaturedSection />
+          <FeaturedSection isPremium={isPremium} />
 
           <div className="space-y-8">
             <SectionGrid
               title="Made For You"
               songs={madeForYouSongs}
               isLoading={isLoading}
+              isPremium={isPremium}
             />
             <SectionGrid
               title="Trending"
               songs={trendingSongs}
               isLoading={isLoading}
+              isPremium={isPremium}
             />
           </div>
         </div>

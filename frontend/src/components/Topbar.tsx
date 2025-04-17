@@ -6,20 +6,10 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "./ui/button";
 import BuyPremiumButton from "./BuyPremiumButton";
-import { useEffect } from "react";
 import PremiumCircle from "./PremiumCircle";
 
 const Topbar = () => {
   const { isAdmin, isPremium } = useAuthStore();
-
-  useEffect(() => {
-    const checkPremiumStatus = async () => {
-      await useAuthStore.getState().checkPremiumStatus();
-    };
-    checkPremiumStatus();
-  }, []);
-
-  console.log("Premium status:", isPremium);
 
   return (
     <div
