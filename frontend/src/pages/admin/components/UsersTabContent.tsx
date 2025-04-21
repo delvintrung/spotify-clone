@@ -5,9 +5,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Library } from "lucide-react";
+import { Users } from "lucide-react";
 import AddArtistDialog from "./AddArtistDialog";
-import ArtistsTable from "./ArtistsTable";
+import UsersTable from "./UsersTable";
 
 const UsersTabContent = () => {
   return (
@@ -16,8 +16,8 @@ const UsersTabContent = () => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <Library className="h-5 w-5 text-violet-500" />
-              Artists
+              <Users className="h-5 w-5 text-violet-500" />
+              Users
             </CardTitle>
             <CardDescription>Manage your album collection</CardDescription>
           </div>
@@ -26,7 +26,7 @@ const UsersTabContent = () => {
       </CardHeader>
 
       <CardContent>
-        <ArtistsTable />
+        <UsersTable />
       </CardContent>
     </Card>
   );

@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useMusicStore } from "@/stores/useMusicStore";
-import { Calendar, Trash2, Pencil } from "lucide-react";
+import { Calendar, Trash2 } from "lucide-react";
 import EditSongDialog from "./EditSongDialog";
 
 const SongsTable = () => {

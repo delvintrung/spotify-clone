@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Library } from "lucide-react";
+import { Pencil } from "lucide-react";
 import AddArtistDialog from "./AddArtistDialog";
 import ArtistsTable from "./ArtistsTable";
 
@@ -16,7 +16,7 @@ const ArtistsTabContent = () => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <Library className="h-5 w-5 text-violet-500" />
+              <Pencil className="h-5 w-5 text-violet-500" />
               Artists
             </CardTitle>
             <CardDescription>Manage your album collection</CardDescription>

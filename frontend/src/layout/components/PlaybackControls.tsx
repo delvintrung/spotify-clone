@@ -19,7 +19,6 @@ import { useEffect, useRef, useState } from "react";
 import { Tooltip } from "flowbite-react";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { useUser } from "@clerk/clerk-react";
-import { Link } from "react-router-dom";
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = Math.floor(seconds % 60);
@@ -27,8 +26,15 @@ const formatTime = (seconds: number) => {
 };
 
 export const PlaybackControls = () => {
-  const { currentSong, isPlaying, togglePlay, playNext, playPrevious } =
-    usePlayerStore();
+  const {
+    currentSong,
+    isPlaying,
+    isRepeat,
+    togglePlay,
+    playNext,
+    playPrevious,
+    toggleRepeat,
+  } = usePlayerStore();
   const { favorites, addToFavorites, removeFromFavorites } = useMusicStore();
 
   const [volume, setVolume] = useState(75);
@@ -41,7 +47,6 @@ export const PlaybackControls = () => {
 
   useEffect(() => {
     audioRef.current = document.querySelector("audio");
-
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -52,7 +57,14 @@ export const PlaybackControls = () => {
     audio.addEventListener("loadedmetadata", updateDuration);
 
     const handleEnded = () => {
-      usePlayerStore.setState({ isPlaying: false });
+      if (isRepeat) {
+        if (audioRef.current) {
+          audioRef.current.currentTime = 0;
+          audioRef.current.play();
+        }
+      } else {
+        playNext();
+      }
     };
 
     audio.addEventListener("ended", handleEnded);
@@ -67,7 +79,7 @@ export const PlaybackControls = () => {
       audio.removeEventListener("loadedmetadata", updateDuration);
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [currentSong]);
+  }, [currentSong, isRepeat, playNext, favorites]);
 
   const handleSeek = (value: number[]) => {
     if (audioRef.current) {
@@ -147,13 +159,21 @@ export const PlaybackControls = () => {
             >
               <SkipForward className="h-4 w-4" />
             </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="hidden sm:inline-flex hover:text-white text-zinc-400"
+            <Tooltip
+              content={isRepeat ? "Disable Repeat" : "Enable Repeat"}
+              placement="top"
             >
-              <Repeat className="h-4 w-4" />
-            </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className={`hidden sm:inline-flex hover:text-white ${
+                  isRepeat ? "text-violet-500" : "text-zinc-400"
+                }`}
+                onClick={toggleRepeat}
+              >
+                <Repeat className="h-4 w-4" />
+              </Button>
+            </Tooltip>
             <Tooltip content="Add to Favourites" placement="top">
               <Button
                 size="icon"

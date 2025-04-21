@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { Plus, Upload } from "lucide-react";
-import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,15 +19,18 @@ const AddArtistDialog = () => {
   const [artistDialogOpen, setArtistDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [date, setDate] = React.useState<Date>();
 
   const [newArtist, setNewArtist] = useState<Artist>({
     name: "",
     imageUrl: "",
-    birthdate: date || new Date(),
+    birthdate: new Date(),
   });
-
   const [imageFile, setImageFile] = useState<File | null>(null);
+
+  // Chuyển đổi Date thành định dạng yyyy-MM-dd cho input date
+  const formatDateForInput = (date: Date): string => {
+    return date.toISOString().split("T")[0];
+  };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -41,38 +43,69 @@ const AddArtistDialog = () => {
     setIsLoading(true);
 
     try {
+      // Kiểm tra dữ liệu đầu vào
+      if (!newArtist.name.trim()) {
+        return toast.error("Please enter an artist name");
+      }
       if (!imageFile) {
         return toast.error("Please upload an image");
+      }
+      if (!newArtist.birthdate) {
+        return toast.error("Please select a birthdate");
       }
 
       const formData = new FormData();
       formData.append("name", newArtist.name);
-      formData.append("birthdate", newArtist.birthdate.toString());
+      formData.append("birthdate", newArtist.birthdate.toISOString());
       formData.append("imageFile", imageFile);
 
-      await axiosInstance.post("/admin/artists", formData, {
+      const res = await axiosInstance.post("/admin/artists", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
+      if (res.status !== 200) {
+        throw new Error("Failed to create artist");
+      }
+
+      // Reset trạng thái
       setNewArtist({
         name: "",
         imageUrl: "",
         birthdate: new Date(),
       });
       setImageFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       setArtistDialogOpen(false);
-      toast.success("Album created successfully");
+      toast.success("Artist created successfully");
     } catch (error: any) {
-      toast.error("Failed to create album: " + error.message);
+      toast.error("Failed to create artist: " + error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Reset trạng thái khi đóng dialog
+  const handleDialogClose = (open: boolean) => {
+    setArtistDialogOpen(open);
+    if (!open) {
+      setNewArtist({
+        name: "",
+        imageUrl: "",
+        birthdate: new Date(),
+      });
+      setImageFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   return (
-    <Dialog open={artistDialogOpen} onOpenChange={setArtistDialogOpen}>
+    <Dialog open={artistDialogOpen} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
         <Button className="bg-violet-500 hover:bg-violet-600 text-white">
           <Plus className="mr-2 h-4 w-4" />
@@ -82,7 +115,9 @@ const AddArtistDialog = () => {
       <DialogContent className="bg-zinc-900 border-zinc-700">
         <DialogHeader>
           <DialogTitle>Add New Artist</DialogTitle>
-          <DialogDescription>Add a new artsist</DialogDescription>
+          <DialogDescription>
+            Add a new artist to your music library
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
@@ -93,16 +128,21 @@ const AddArtistDialog = () => {
                 setNewArtist({ ...newArtist, name: e.target.value })
               }
               className="bg-zinc-800 border-zinc-700"
-              placeholder="Enter name"
+              placeholder="Enter artist name"
             />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Birthdate</label>
             <input
               type="date"
-              name=""
-              id=""
-              className="bg-zinc-900 ml-2 rounded-sm"
+              value={formatDateForInput(newArtist.birthdate)}
+              onChange={(e) =>
+                setNewArtist({
+                  ...newArtist,
+                  birthdate: new Date(e.target.value),
+                })
+              }
+              className="w-full bg-zinc-800 border-zinc-700 text-white rounded-md p-2"
             />
           </div>
           <input
@@ -117,15 +157,26 @@ const AddArtistDialog = () => {
             onClick={() => fileInputRef.current?.click()}
           >
             <div className="text-center">
-              <div className="p-3 bg-zinc-800 rounded-full inline-block mb-2">
-                <Upload className="h-6 w-6 text-zinc-400" />
-              </div>
-              <div className="text-sm text-zinc-400 mb-2">
-                {imageFile ? imageFile.name : "Upload artsist avatar"}
-              </div>
-              <Button variant="outline" size="sm" className="text-xs">
-                Choose File
-              </Button>
+              {imageFile ? (
+                <div className="space-y-2">
+                  <div className="text-sm text-violet-500">Image selected:</div>
+                  <div className="text-xs text-zinc-400">
+                    {imageFile.name.slice(0, 20)}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="p-3 bg-zinc-800 rounded-full inline-block mb-2">
+                    <Upload className="h-6 w-6 text-zinc-400" />
+                  </div>
+                  <div className="text-sm text-zinc-400 mb-2">
+                    Upload artist avatar
+                  </div>
+                  <Button variant="outline" size="sm" className="text-xs">
+                    Choose File
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -140,9 +191,14 @@ const AddArtistDialog = () => {
           <Button
             onClick={handleSubmit}
             className="bg-violet-500 hover:bg-violet-600"
-            disabled={isLoading || !imageFile || !newArtist.name || !date}
+            disabled={
+              isLoading ||
+              !newArtist.name.trim() ||
+              !imageFile ||
+              isNaN(newArtist.birthdate.getTime())
+            }
           >
-            {isLoading ? "Creating..." : "Add Album"}
+            {isLoading ? "Creating..." : "Add Artist"}
           </Button>
         </DialogFooter>
       </DialogContent>

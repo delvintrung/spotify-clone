@@ -7,9 +7,11 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "./ui/button";
 import BuyPremiumButton from "./BuyPremiumButton";
 import PremiumCircle from "./PremiumCircle";
+import { useUser } from "@clerk/clerk-react";
 
 const Topbar = () => {
   const { isAdmin, isPremium } = useAuthStore();
+  const { isSignedIn } = useUser();
 
   return (
     <div
@@ -22,7 +24,7 @@ const Topbar = () => {
         Spotify
       </div>
       <div className="flex items-center gap-4">
-        <BuyPremiumButton isPremium={isPremium} />
+        {isSignedIn && <BuyPremiumButton isPremium={isPremium} />}
         {isAdmin && (
           <Link
             to={"/admin"}

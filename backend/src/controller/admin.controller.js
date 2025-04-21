@@ -1,4 +1,5 @@
 import { Song } from "../models/song.model.js";
+import { Artist } from "../models/artist.model.js";
 import { Album } from "../models/album.model.js";
 import cloudinary from "../lib/cloudinary.js";
 
@@ -131,25 +132,161 @@ export const deleteSong = async (req, res, next) => {
   }
 };
 
-export const createAlbum = async (req, res, next) => {
+export const createArtist = async (req, res, next) => {
   try {
-    const { title, artist, releaseYear } = req.body;
-    const { imageFile } = req.files;
+    if (!req.files || !req.files.imageFile) {
+      return res.status(400).json({ message: "Please upload all files" });
+    }
+
+    const { name, birthdate } = req.body;
+    const imageFile = req.files.imageFile;
+
+    console.log("imageFile", imageFile, name, birthdate);
 
     const imageUrl = await uploadToCloudinary(imageFile);
 
-    const album = new Album({
-      title,
-      artist,
+    const artist = new Artist({
+      name,
+      birthdate,
       imageUrl,
-      releaseYear,
     });
+
+    await artist.save();
+
+    res.status(201).json(artist);
+  } catch (error) {
+    console.log("Error in createSong", error);
+    next(error);
+  }
+};
+
+export const createAlbum = async (req, res, next) => {
+  try {
+    const { title, artist, releaseYear } = req.body;
+    const songIds = req.body["songIds[]"] || req.body.songIds;
+    const { imageFile } = req.files;
+
+    if (!title || !title.trim()) {
+      return res.status(400).json({ message: "Album title is required" });
+    }
+    if (!imageFile) {
+      return res.status(400).json({ message: "Album artwork is required" });
+    }
+    if (
+      isNaN(releaseYear) ||
+      releaseYear < 1900 ||
+      releaseYear > new Date().getFullYear()
+    ) {
+      return res.status(400).json({
+        message: "Invalid release year. Must be between 1900 and current year",
+      });
+    }
+
+    if (!songIds || !Array.isArray(songIds) || songIds.length < 2) {
+      return res
+        .status(400)
+        .json({ message: "At least 2 songs are required for an album" });
+    }
+
+    const songs = await Song.find({ _id: { $in: songIds } });
+    if (songs.length !== songIds.length) {
+      return res
+        .status(400)
+        .json({ message: "One or more song IDs are invalid" });
+    }
+
+    const imageUrl = await uploadToCloudinary(imageFile);
+
+    if (!artist || !artist.trim()) {
+      const album = new Album({
+        title,
+        artist,
+        imageUrl,
+        releaseYear,
+        songs: songIds,
+      });
+
+      await album.save();
+
+      res.status(201).json(album);
+    } else {
+      const album = new Album({
+        title,
+        imageUrl,
+        releaseYear,
+        songs: songIds,
+      });
+
+      await album.save();
+
+      res.status(201).json(album);
+    }
+  } catch (error) {
+    console.error("Error in createAlbum:", error);
+    next(error);
+  }
+};
+
+export const updateAlbum = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { title, artist, releaseYear, "songIds[]": songIds } = req.body;
+    const { imageFile } = req.files || {};
+
+    const album = await Album.findById(id);
+    if (!album) {
+      return res.status(404).json({ message: "Album not found" });
+    }
+
+    if (title && !title.trim()) {
+      return res.status(400).json({ message: "Album title cannot be empty" });
+    }
+    if (artist) {
+      const artistExists = await Artist.findById(artist);
+      if (!artistExists) {
+        return res.status(400).json({ message: "Invalid artist ID" });
+      }
+    }
+    if (releaseYear) {
+      const year = parseInt(releaseYear);
+      if (isNaN(year) || year < 1900 || year > new Date().getFullYear()) {
+        return res.status(400).json({
+          message: "Release year must be between 1900 and current year",
+        });
+      }
+    }
+    if (songIds) {
+      if (!Array.isArray(songIds) || songIds.length < 2) {
+        return res
+          .status(400)
+          .json({ message: "At least 2 songs are required for an album" });
+      }
+      const songs = await Song.find({ _id: { $in: songIds } });
+      if (songs.length !== songIds.length) {
+        return res
+          .status(400)
+          .json({ message: "One or more song IDs are invalid" });
+      }
+    }
+
+    if (title) album.title = title;
+    if (artist) album.artist = artist;
+    if (releaseYear) album.releaseYear = parseInt(releaseYear);
+    if (songIds) album.songs = songIds;
+    if (imageFile) {
+      album.imageUrl = await uploadToCloudinary(imageFile);
+    }
 
     await album.save();
 
-    res.status(201).json(album);
+    // Populate response
+    const populatedAlbum = await Album.findById(album._id).populate(
+      "songs",
+      "title"
+    );
+    res.status(200).json(populatedAlbum);
   } catch (error) {
-    console.log("Error in createAlbum", error);
+    console.error("Error in updateAlbum:", error);
     next(error);
   }
 };
