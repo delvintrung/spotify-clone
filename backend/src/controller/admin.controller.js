@@ -1,6 +1,7 @@
 import { Song } from "../models/song.model.js";
 import { Artist } from "../models/artist.model.js";
 import { Album } from "../models/album.model.js";
+import { Playlist } from "../models/playlist.model.js";
 import cloudinary from "../lib/cloudinary.js";
 
 // helper function for cloudinary uploads
@@ -299,6 +300,37 @@ export const deleteAlbum = async (req, res, next) => {
     res.status(200).json({ message: "Album deleted successfully" });
   } catch (error) {
     console.log("Error in deleteAlbum", error);
+    next(error);
+  }
+};
+
+export const updatePlaylist = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { title } = req.body;
+    const { avatar } = req.files || {};
+
+    const playlist = await Playlist.findById(id);
+    if (!playlist) {
+      return res.status(404).json({ message: "Playlist not found" });
+    }
+
+    if (title && !title.trim()) {
+      return res
+        .status(400)
+        .json({ message: "Playlist title cannot be empty" });
+    }
+
+    if (title) playlist.title = title;
+    if (avatar) {
+      playlist.avatar = await uploadToCloudinary(avatar);
+    }
+
+    await playlist.save();
+
+    res.status(200).json(playlist);
+  } catch (error) {
+    console.error("Error in updatePlaylist:", error);
     next(error);
   }
 };
