@@ -27,7 +27,7 @@ interface NewSong {
   title: string;
   artist: string;
   album: string;
-  duration?: string;
+  duration: string;
 }
 
 interface EditSongDialogProps {
@@ -35,15 +35,16 @@ interface EditSongDialogProps {
 }
 
 const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
-  const { albums, artists } = useMusicStore();
+  const { albums, artists, fetchSongs } = useMusicStore();
   const [songDialogOpen, setSongDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Khởi tạo newSong với giá trị từ currentSong
   const [newSong, setNewSong] = useState<NewSong>({
-    title: "",
-    artist: "",
-    album: "",
-    duration: "0",
+    title: currentSong.title,
+    artist: currentSong.artist._id ?? "",
+    album: currentSong.albumId ?? "none",
+    duration: currentSong.duration?.toString() ?? "0",
   });
 
   const [files, setFiles] = useState<{
@@ -63,27 +64,29 @@ const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
     try {
       const formData = new FormData();
 
-      formData.append(
-        "title",
-        newSong.title != "" ? newSong.title : currentSong.title
-      );
-      formData.append(
-        "artist",
-        newSong.artist !== "" ? newSong.artist : currentSong.artist._id ?? ""
-      );
-      formData.append(
-        "duration",
-        newSong.duration || currentSong.duration + ""
-      );
-
-      if (newSong.album && newSong.album !== "none") {
+      // Chỉ thêm các trường đã thay đổi
+      if (newSong.title !== currentSong.title) {
+        formData.append("title", newSong.title);
+      }
+      if (newSong.artist !== (currentSong.artist._id ?? "")) {
+        formData.append("artist", newSong.artist);
+      }
+      if (newSong.duration !== currentSong.duration?.toString()) {
+        formData.append("duration", newSong.duration);
+      }
+      if (
+        newSong.album !== (currentSong.albumId ?? "none") &&
+        newSong.album !== "none"
+      ) {
         formData.append("albumId", newSong.album);
       }
-      if (audioInputRef.current?.files) {
-        formData.append("audioFile", audioInputRef.current.files[0]);
+
+      // Chỉ thêm file nếu người dùng chọn file mới
+      if (files.audio) {
+        formData.append("audioFile", files.audio);
       }
-      if (imageInputRef.current?.files) {
-        formData.append("imageFile", imageInputRef.current.files[0]);
+      if (files.image) {
+        formData.append("imageFile", files.image);
       }
 
       const res = await axiosInstance.put(
@@ -95,33 +98,55 @@ const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
           },
         }
       );
+
       if (res.status !== 200) {
         throw new Error("Failed to edit song");
-      } else {
-        setNewSong({
-          title: "",
-          artist: "",
-          album: "",
-          duration: "0",
-        });
-
-        setFiles({
-          audio: null,
-          image: null,
-        });
-        toast.success("Song edit successfully");
       }
+
+      // Reset trạng thái
+      setNewSong({
+        title: currentSong.title,
+        artist: currentSong.artist._id ?? "",
+        album: currentSong.albumId ?? "none",
+        duration: currentSong.duration?.toString() ?? "0",
+      });
+      setFiles({
+        audio: null,
+        image: null,
+      });
+      setSongDialogOpen(false);
+      toast.success("Song edited successfully");
+      fetchSongs();
     } catch (error: any) {
-      toast.error("Failed to add song: " + error.message);
+      toast.error("Failed to edit song: " + error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Reset trạng thái khi đóng dialog
+  const handleDialogClose = (open: boolean) => {
+    setSongDialogOpen(open);
+    if (!open) {
+      setNewSong({
+        title: currentSong.title,
+        artist: currentSong.artist._id ?? "",
+        album: currentSong.albumId ?? "none",
+        duration: currentSong.duration?.toString() ?? "0",
+      });
+      setFiles({
+        audio: null,
+        image: null,
+      });
+      if (audioInputRef.current) audioInputRef.current.value = "";
+      if (imageInputRef.current) imageInputRef.current.value = "";
+    }
+  };
+
   return (
-    <Dialog open={songDialogOpen} onOpenChange={setSongDialogOpen}>
+    <Dialog open={songDialogOpen} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
-        <div className="flex items-center hover:text-red-300 hover:bg-gray-400/10 p-2 justify-center rounded-sm">
+        <div className="flex items-center hover:text-red-300 hover:bg-gray-400/10 p-2 justify-center rounded-sm cursor-pointer">
           <Pencil className="mr-2 h-4 w-4" />
         </div>
       </DialogTrigger>
@@ -155,7 +180,7 @@ const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
             }
           />
 
-          {/* image upload area */}
+          {/* Image upload area */}
           <div
             className="flex items-center justify-center p-6 border-2 border-dashed border-zinc-700 rounded-lg cursor-pointer"
             onClick={() => imageInputRef.current?.click()}
@@ -172,12 +197,6 @@ const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
                 </div>
               ) : (
                 <>
-                  {/* <div className="p-3 bg-zinc-800 rounded-full inline-block mb-2">
-                    <Upload className="h-6 w-6 text-zinc-400" />
-                  </div>
-                  <div className="text-sm text-zinc-400 mb-2">
-                    Upload artwork
-                  </div> */}
                   <div>
                     <img
                       src={currentSong.imageUrl}
@@ -185,7 +204,7 @@ const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
                       className="w-[200px]"
                     />
                   </div>
-                  <Button variant="outline" size="sm" className="text-xs">
+                  <Button variant="outline" size="sm" className="text-xs mt-2">
                     Choose File
                   </Button>
                 </>
@@ -196,11 +215,10 @@ const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
           {/* Audio upload */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Audio File</label>
-            <div className="flex-col justify-center items-center gap-5">
+            <div className="flex flex-col justify-center items-center gap-5">
               {!files.audio && (
                 <audio src={currentSong.audioUrl} controls className="h-10" />
               )}
-
               <Button
                 variant="outline"
                 onClick={() => audioInputRef.current?.click()}
@@ -208,17 +226,16 @@ const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
               >
                 {files.audio
                   ? files.audio.name.slice(0, 20)
-                  : "Choose Anothor Audio File"}
+                  : "Choose Another Audio File"}
               </Button>
             </div>
           </div>
 
-          {/* other fields */}
+          {/* Other fields */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Title</label>
             <Input
-              defaultValue={currentSong.title}
-              //   value={newSong.title}
+              value={newSong.title}
               onChange={(e) =>
                 setNewSong({ ...newSong, title: e.target.value })
               }
@@ -230,13 +247,12 @@ const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
             <label className="text-sm font-medium">Artist</label>
             <Select
               value={newSong.artist}
-              defaultValue={currentSong.artist.name || "None"}
               onValueChange={(value) =>
                 setNewSong({ ...newSong, artist: value })
               }
             >
               <SelectTrigger className="bg-zinc-800 border-zinc-700">
-                <SelectValue placeholder={currentSong.artist.name} />
+                <SelectValue placeholder="Select artist" />
               </SelectTrigger>
               <SelectContent className="bg-zinc-800 border-zinc-700">
                 <SelectItem value="none">Không biết</SelectItem>
@@ -254,8 +270,7 @@ const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
             <Input
               type="number"
               min="0"
-              defaultValue={currentSong.duration}
-              //   value={newSong.duration}
+              value={newSong.duration}
               onChange={(e) =>
                 setNewSong({ ...newSong, duration: e.target.value || "0" })
               }
@@ -302,4 +317,5 @@ const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
     </Dialog>
   );
 };
+
 export default EditSongDialog;

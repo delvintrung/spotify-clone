@@ -3,13 +3,20 @@ import SectionGridSkeleton from "./SectionGridSkeleton";
 import { Button } from "@/components/ui/button";
 import PlayButton from "./PlayButton";
 import { Lock } from "lucide-react";
+import PremiumWatermark from "@/components/PremiumWatermark";
 
 type SectionGridProps = {
   title: string;
   songs: Song[];
   isLoading: boolean;
+  isPremium?: boolean;
 };
-const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
+const SectionGrid = ({
+  songs,
+  title,
+  isLoading,
+  isPremium,
+}: SectionGridProps) => {
   if (isLoading) return <SectionGridSkeleton />;
 
   return (
@@ -29,13 +36,14 @@ const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
           <div
             key={song._id}
             className={`bg-zinc-800/40 p-4 rounded-md  ${
-              song.premium == 1
+              song.premium
                 ? ""
                 : "transition-all cursor-pointer hover:bg-zinc-700/40"
             } group `}
           >
             <div className="relative mb-4">
               <div className="aspect-square rounded-md shadow-lg overflow-hidden">
+                {song.premium && isPremium === false && <PremiumWatermark />}
                 <img
                   src={song.imageUrl}
                   alt={song.title}
@@ -44,7 +52,7 @@ const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
                 />
               </div>
               <div className="relative">
-                {song?.premium == 1 ? (
+                {song?.premium ? (
                   <Lock
                     className="absolute top-[-170px] left-2 z-30"
                     size={30}

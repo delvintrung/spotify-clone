@@ -6,13 +6,14 @@ import {
   updateSong,
   deleteAlbum,
   deleteSong,
+  createArtist,
+  updatePlaylist,
 } from "../controller/admin.controller.js";
 import { protectRoute, requireAdmin } from "../middleware/auth.middleware.js";
-import { createArtist } from "../controller/artist.controller.js";
 
 const router = Router();
 
-router.use(requireAdmin);
+// router.use(requireAdmin);
 
 router.get("/check", checkAdmin);
 
@@ -23,5 +24,6 @@ router.delete("/songs/:id", deleteSong);
 
 router.post("/albums", createAlbum);
 router.delete("/albums/:id", deleteAlbum);
+router.put("/playlists/:id", updatePlaylist);
 
 export default router;

@@ -5,9 +5,13 @@ import SignInOAuthButtons from "./SignInOAuthButtons";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "./ui/button";
+import BuyPremiumButton from "./BuyPremiumButton";
+import PremiumCircle from "./PremiumCircle";
+import { useUser } from "@clerk/clerk-react";
 
 const Topbar = () => {
-  const { isAdmin } = useAuthStore();
+  const { isAdmin, isPremium } = useAuthStore();
+  const { isSignedIn } = useUser();
 
   return (
     <div
@@ -20,6 +24,7 @@ const Topbar = () => {
         Spotify
       </div>
       <div className="flex items-center gap-4">
+        {isSignedIn && <BuyPremiumButton isPremium={isPremium} />}
         {isAdmin && (
           <Link
             to={"/admin"}
@@ -34,7 +39,11 @@ const Topbar = () => {
           <SignInOAuthButtons />
         </SignedOut>
 
-        <UserButton />
+        <div className="relative ">
+          {isPremium && <PremiumCircle />}
+
+          <UserButton />
+        </div>
       </div>
     </div>
   );

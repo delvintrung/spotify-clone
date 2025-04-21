@@ -11,12 +11,12 @@ import { useMusicStore } from "@/stores/useMusicStore";
 import { Calendar, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 
-const ArtistsTable = () => {
-  const { artists, deleteArtist, fetchArtists } = useMusicStore();
+const UsersTable = () => {
+  const { users, fetchUsers } = useMusicStore();
 
   useEffect(() => {
-    fetchArtists();
-  }, [fetchArtists]);
+    fetchUsers();
+  }, [fetchUsers]);
 
   return (
     <Table>
@@ -30,23 +30,23 @@ const ArtistsTable = () => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {artists.length > 0 ? (
-          artists.map((artist) => (
-            <TableRow key={artist._id} className="hover:bg-zinc-800/50">
+        {users.length > 0 ? (
+          users.map((user) => (
+            <TableRow key={user._id} className="hover:bg-zinc-800/50">
               <TableCell>
                 <img
-                  src={artist.imageUrl}
-                  alt={artist.name}
+                  src={user.imageUrl}
+                  alt={user.fullName}
                   className="w-10 h-10 rounded object-cover"
                 />
               </TableCell>
-              <TableCell className="font-medium">{artist.name}</TableCell>
-              <TableCell>
+              <TableCell className="font-medium">{user.fullName}</TableCell>
+              {/* <TableCell>
                 <span className="inline-flex items-center gap-1 text-zinc-400">
                   <Calendar className="h-4 w-4" />
                   {artist.birthdate.toString()}
                 </span>
-              </TableCell>
+              </TableCell> */}
               {/* <TableCell>
                 <span className="inline-flex items-center gap-1 text-zinc-400">
                   <Music className="h-4 w-4" />
@@ -58,7 +58,7 @@ const ArtistsTable = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => deleteArtist(artist._id!)}
+                    // onClick={() => deleteArtist(artist._id!)}
                     className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -74,4 +74,4 @@ const ArtistsTable = () => {
     </Table>
   );
 };
-export default ArtistsTable;
+export default UsersTable;

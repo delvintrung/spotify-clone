@@ -20,6 +20,9 @@ import { useMusicStore } from "@/stores/useMusicStore";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 import { Playlist, Song } from "@/types";
 import { axiosInstance } from "@/lib/axios";
+import { useUser } from "@clerk/clerk-react";
+import { Pencil } from "lucide-react";
+import EditPlaylistDialog from "./EditPlaylistDialog";
 
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
@@ -30,10 +33,10 @@ const formatTime = (seconds: number) => {
 const MyAlbum = () => {
   const [songSeleted, setSongSeleted] = useState<Song | null>(null);
   const { currentSong, setCurrentSong, togglePlay } = usePlayerStore();
-
   const { songs, fetchSongs } = useMusicStore();
   const { initializeQueue } = usePlayerStore();
   const { playlistId } = useParams();
+  const { user } = useUser();
   const [playlist, setPlaylist] = useState<Playlist>();
   const isCurrentSong = currentSong?._id === songSeleted?._id;
 
@@ -77,11 +80,19 @@ const MyAlbum = () => {
     <div className="bg-zinc-900 h-full rounded-md ">
       <div className="flex items-center justify-between mb-4 h-[200px] bg-gradient-to-b from-gray-600 to-zinc-800">
         <div className="mt-10 mb-5 flex px-10 gap-5">
-          <div className="w-40 h-40 bg-white shadow-lg rounded-lg"></div>
+          <img
+            className="w-40 h-40 shadow-lg rounded-lg"
+            src={playlist?.avatar}
+          />
           <div className="mt-20">
-            <p className="text-sm text-gray-300">Public playlist</p>
-            <h2 className="text-3xl font-bold text-gray-300">My Album</h2>
-            <p className="text-gray-300">Delvin Trung</p>
+            <p className="text-sm text-gray-300">{playlist?.title}</p>
+            <h2 className="text-3xl font-bold text-gray-300">
+              {playlist?.title}
+            </h2>
+            <div className="flex justify-start items-center">
+              <p className="text-gray-300">{user?.fullName}</p>
+              {playlist && <EditPlaylistDialog playlist={playlist} />}
+            </div>
           </div>
         </div>
       </div>
@@ -89,7 +100,7 @@ const MyAlbum = () => {
       <div className="">
         <HeaderAlbum />
         {playlist?.songs?.length! > 0 &&
-          playlist?.songs.map((song) => (
+          playlist?.songs?.map((song) => (
             <div
               key={song._id}
               className="flex items-center justify-between px-20 py-2 rounded-sm h-18 hover:cursor-pointer"

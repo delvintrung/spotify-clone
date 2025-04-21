@@ -30,7 +30,7 @@ interface NewSong {
 }
 
 const AddSongDialog = () => {
-  const { albums, artists } = useMusicStore();
+  const { albums, artists, fetchSongs } = useMusicStore();
   const [songDialogOpen, setSongDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -59,16 +59,23 @@ const AddSongDialog = () => {
       if (!files.audio || !files.image) {
         return toast.error("Please upload both audio and image files");
       }
+      if (!newSong.title.trim()) {
+        return toast.error("Please enter a song title");
+      }
+      if (!newSong.artist) {
+        return toast.error("Please select an artist");
+      }
+      if (!newSong.duration || parseInt(newSong.duration) <= 0) {
+        return toast.error("Please enter a valid duration");
+      }
 
       const formData = new FormData();
-
       formData.append("title", newSong.title);
       formData.append("artist", newSong.artist);
       formData.append("duration", newSong.duration);
       if (newSong.album && newSong.album !== "none") {
         formData.append("albumId", newSong.album);
       }
-
       formData.append("audioFile", files.audio);
       formData.append("imageFile", files.image);
 
@@ -84,14 +91,15 @@ const AddSongDialog = () => {
         album: "",
         duration: "0",
       });
-
       setFiles({
         audio: null,
         image: null,
       });
+      setSongDialogOpen(false);
       toast.success("Song added successfully");
+      fetchSongs();
     } catch (error: any) {
-      toast.error("Failed to add song: " + error.message);
+      toast.error(`Failed to add song: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -135,7 +143,7 @@ const AddSongDialog = () => {
             }
           />
 
-          {/* image upload area */}
+          {/* Image upload area */}
           <div
             className="flex items-center justify-center p-6 border-2 border-dashed border-zinc-700 rounded-lg cursor-pointer"
             onClick={() => imageInputRef.current?.click()}
@@ -167,7 +175,7 @@ const AddSongDialog = () => {
           </div>
 
           {/* Audio upload */}
-          <div className="space-y-2">
+          <div className="space月-y-2">
             <label className="text-sm font-medium">Audio File</label>
             <div className="flex items-center gap-2">
               <Button
@@ -182,7 +190,7 @@ const AddSongDialog = () => {
             </div>
           </div>
 
-          {/* other fields */}
+          {/* Other fields */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Title</label>
             <Input
@@ -261,11 +269,12 @@ const AddSongDialog = () => {
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={isLoading}>
-            {isLoading ? "Uploading..." : "Add Song"}
+            {isLoading ? "Processing..." : "Add Song"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 };
+
 export default AddSongDialog;

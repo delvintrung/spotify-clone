@@ -77,31 +77,3 @@ export const getMadeForYouSongs = async (req, res, next) => {
     next(error);
   }
 };
-
-export const createArtist = async (req, res, next) => {
-  try {
-    if (!req.files || !req.files.imageFile) {
-      return res.status(400).json({ message: "Please upload all files" });
-    }
-
-    const { name, birthdate } = req.body;
-    const imageFile = req.files.imageFile;
-
-    console.log("imageFile", imageFile, name, birthdate);
-
-    // const imageUrl = await uploadToCloudinary(imageFile);
-
-    // const artist = new Artist({
-    //   name,
-    //   birthdate,
-    //   imageUrl,
-    // });
-
-    // await artist.save();
-
-    res.status(201).json("artist");
-  } catch (error) {
-    console.log("Error in createSong", error);
-    next(error);
-  }
-};

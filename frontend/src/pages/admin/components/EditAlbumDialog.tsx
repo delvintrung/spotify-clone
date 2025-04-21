@@ -1,5 +1,3 @@
-import { useRef, useState } from "react";
-import { Plus, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,26 +18,31 @@ import {
 } from "@/components/ui/select";
 import { axiosInstance } from "@/lib/axios";
 import { useMusicStore } from "@/stores/useMusicStore";
+import { Album } from "@/types";
+import { Pencil, Upload, X } from "lucide-react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 
-interface Album {
-  title: string;
-  artist: string; // ID của nghệ sĩ
-  releaseYear: number;
-  songIds: string[]; // Array of song IDs
+interface EditAlbumDialogProps {
+  album: Album;
+  refreshTable: () => void; // Callback to refresh the album table
 }
 
-const AddAlbumDialog = () => {
+const EditAlbumDialog = ({ album, refreshTable }: EditAlbumDialogProps) => {
   const { artists, songs } = useMusicStore();
   const [albumDialogOpen, setAlbumDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [newAlbum, setNewAlbum] = useState<Album>({
-    title: "",
-    artist: "",
-    releaseYear: new Date().getFullYear(),
-    songIds: [],
+  // Initialize form with existing album data
+  const [newAlbum, setNewAlbum] = useState({
+    title: album.title || "",
+    artist: typeof album.artist === "string" ? album.artist : "",
+    releaseYear: album.releaseYear || new Date().getFullYear(),
+    songIds:
+      album.songs?.map((song) =>
+        typeof song === "string" ? song : song._id
+      ) || [],
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -68,15 +71,12 @@ const AddAlbumDialog = () => {
     setIsLoading(true);
 
     try {
-      // Kiểm tra dữ liệu đầu vào
+      // Validate inputs
       if (!newAlbum.title.trim()) {
         return toast.error("Please enter an album title");
       }
       if (!newAlbum.artist) {
         return toast.error("Please select an artist");
-      }
-      if (!imageFile) {
-        return toast.error("Please upload an image");
       }
       if (
         isNaN(newAlbum.releaseYear) ||
@@ -92,53 +92,79 @@ const AddAlbumDialog = () => {
       }
 
       const formData = new FormData();
-      formData.append("title", newAlbum.title);
-      formData.append("artist", newAlbum.artist);
-      formData.append("releaseYear", newAlbum.releaseYear.toString());
-      formData.append("imageFile", imageFile);
+      // Only append changed fields
+      if (newAlbum.title !== album.title) {
+        formData.append("title", newAlbum.title);
+      }
+      if (
+        newAlbum.artist !==
+        (typeof album.artist === "string" ? album.artist : "")
+      ) {
+        formData.append("artist", newAlbum.artist);
+      }
+      if (newAlbum.releaseYear !== album.releaseYear) {
+        formData.append("releaseYear", newAlbum.releaseYear.toString());
+      }
+      if (imageFile) {
+        formData.append("imageFile", imageFile);
+      }
+      // Always send songIds to ensure the album's song list is updated
       newAlbum.songIds.forEach((songId) => {
-        formData.append("songIds[]", songId); // Use array notation for songIds
+        formData.append("songIds[]", songId);
       });
 
-      const res = await axiosInstance.post("/admin/albums", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axiosInstance.put(
+        `/admin/albums/${album._id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-      if (res.status !== 200) {
-        throw new Error("Failed to create album");
+      if (response.status !== 200) {
+        throw new Error("Failed to update album");
       }
 
-      // Reset trạng thái
+      // Reset form
       setNewAlbum({
-        title: "",
-        artist: "",
-        releaseYear: new Date().getFullYear(),
-        songIds: [],
+        title: album.title || "",
+        artist: typeof album.artist === "string" ? album.artist : "",
+        releaseYear: album.releaseYear || new Date().getFullYear(),
+        songIds:
+          album.songs?.map((song) =>
+            typeof song === "string" ? song : song._id
+          ) || [],
       });
       setImageFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
       setAlbumDialogOpen(false);
-      toast.success("Album created successfully");
+      toast.success("Album updated successfully");
+      refreshTable(); // Refresh the album table
     } catch (error: any) {
-      toast.error("Failed to create album: " + error.message);
+      toast.error(
+        `Failed to update album: ${error.message || "Unknown error"}`
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Reset trạng thái khi đóng dialog
   const handleDialogClose = (open: boolean) => {
     setAlbumDialogOpen(open);
     if (!open) {
+      // Reset to original album data
       setNewAlbum({
-        title: "",
-        artist: "",
-        releaseYear: new Date().getFullYear(),
-        songIds: [],
+        title: album.title || "",
+        artist: typeof album.artist === "string" ? album.artist : "",
+        releaseYear: album.releaseYear || new Date().getFullYear(),
+        songIds:
+          album.songs?.map((song) =>
+            typeof song === "string" ? song : song._id
+          ) || [],
       });
       setImageFile(null);
       if (fileInputRef.current) {
@@ -150,16 +176,18 @@ const AddAlbumDialog = () => {
   return (
     <Dialog open={albumDialogOpen} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
-        <Button className="bg-violet-500 hover:bg-violet-600 text-white">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Album
+        <Button
+          variant="ghost"
+          className="flex items-center hover:text-red-300 hover:bg-gray-400/10 p-2 justify-center rounded-sm"
+        >
+          <Pencil className="mr-2 h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="bg-zinc-900 border-zinc-700 max-h-[80vh] overflow-auto">
         <DialogHeader>
-          <DialogTitle>Add New Album</DialogTitle>
+          <DialogTitle>Edit Album</DialogTitle>
           <DialogDescription>
-            Add a new album to your music collection
+            Update the album details and songs.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
@@ -184,14 +212,21 @@ const AddAlbumDialog = () => {
                 </div>
               ) : (
                 <>
-                  <div className="p-3 bg-zinc-800 rounded-full inline-block mb-2">
-                    <Upload className="h-6 w-6 text-zinc-400" />
-                  </div>
-                  <div className="text-sm text-zinc-400 mb-2">
-                    Upload album artwork
-                  </div>
-                  <Button variant="outline" size="sm" className="text-xs">
-                    Choose File
+                  {album.imageUrl ? (
+                    <div>
+                      <img
+                        src={album.imageUrl}
+                        alt={album.title || "Album artwork"}
+                        className="w-[200px] rounded-md"
+                      />
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-zinc-800 rounded-full inline-block mb-2">
+                      <Upload className="h-6 w-6 text-zinc-400" />
+                    </div>
+                  )}
+                  <Button variant="outline" size="sm" className="text-xs mt-2">
+                    {album.imageUrl ? "Change Artwork" : "Upload Artwork"}
                   </Button>
                 </>
               )}
@@ -258,7 +293,7 @@ const AddAlbumDialog = () => {
                       key={songId}
                       className="flex items-center gap-1 bg-zinc-800 text-zinc-300 text-sm px-2 py-1 rounded-md"
                     >
-                      {song?.title}
+                      {song?.title || "Unknown Song"}
                       <button
                         onClick={() => handleSongRemove(songId)}
                         className="hover:text-red-400"
@@ -281,7 +316,7 @@ const AddAlbumDialog = () => {
                   ...newAlbum,
                   releaseYear: e.target.value
                     ? parseInt(e.target.value)
-                    : new Date().getFullYear(),
+                    : newAlbum.releaseYear,
                 })
               }
               className="bg-zinc-800 border-zinc-700"
@@ -306,14 +341,13 @@ const AddAlbumDialog = () => {
               isLoading ||
               !newAlbum.title.trim() ||
               !newAlbum.artist ||
-              !imageFile ||
               newAlbum.songIds.length < 2 ||
               isNaN(newAlbum.releaseYear) ||
               newAlbum.releaseYear < 1900 ||
               newAlbum.releaseYear > new Date().getFullYear()
             }
           >
-            {isLoading ? "Creating..." : "Add Album"}
+            {isLoading ? "Updating..." : "Update Album"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -321,4 +355,4 @@ const AddAlbumDialog = () => {
   );
 };
 
-export default AddAlbumDialog;
+export default EditAlbumDialog;

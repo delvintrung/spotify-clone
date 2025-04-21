@@ -12,6 +12,8 @@ import {
 
 import { Play } from "lucide-react";
 
+import ButtonPlayCustom from "@/pages/home/components/ButtonPlayCustom";
+
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = Math.floor(seconds % 60);
@@ -50,7 +52,7 @@ const ListSong = ({ id }: { id: string }) => {
       <Table>
         <TableCaption>A list of your recent invoices.</TableCaption>
         <TableBody className="w-[800px]">
-          {favorites.map((favourite, idx) => (
+          {favorites.map((favourite) => (
             <TableRow
               key={favourite._id}
               className="flex items-center justify-between px-4 rounded-sm hover:cursor-pointer"
@@ -61,18 +63,16 @@ const ListSong = ({ id }: { id: string }) => {
                 handlePlay();
               }}
             >
-              <TableCell className="font-medium flex items-center gap-4">
-                <div className="w-5">
-                  {!isIconHidden ? (
-                    <Play />
-                  ) : (
-                    <span className="text-xl font-bold">{idx + 1}</span>
-                  )}
+              <TableCell className="font-medium flex items-center gap-4 relative">
+                <div className="w-10 h-10 absolute top-5 left-0">
+                  <ButtonPlayCustom song={favourite.songId} />
+                </div>
+                <div className="pl-10">
+                  <img src={favourite.songId.imageUrl} className="w-14" />
                 </div>
                 <div>
-                  <img src={favourite.songId.imageUrl} className="w-14" />
-                </div>{" "}
-                <p className="text-xl ">{favourite.songId.title}</p>
+                  <p className="text-xl ">{favourite.songId.title}</p>
+                </div>
               </TableCell>
               <TableCell>
                 <div className="text-xs text-zinc-400">
