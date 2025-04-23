@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/tooltip";
 
 import { axiosInstance } from "@/lib/axios";
-
+import toast from "react-hot-toast";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
@@ -41,6 +41,8 @@ const LeftSidebar = () => {
       })
       .then(() => {
         fetchAlbums();
+        fetchPlaylists(user?.id!);
+        toast.success("Playlist created successfully");
       })
       .catch((error) => {
         console.error("Error creating playlist:", error);

@@ -19,6 +19,8 @@ import { useEffect, useRef, useState } from "react";
 import { Tooltip } from "flowbite-react";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { useUser } from "@clerk/clerk-react";
+import toast from "react-hot-toast";
+
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = Math.floor(seconds % 60);
@@ -67,7 +69,7 @@ export const PlaybackControls = () => {
       }
     };
 
-    audio.addEventListener("ended", handleEnded);
+    // audio.addEventListener("ended", handleEnded);
     favorites.map((favourite) => {
       if (favourite.songId._id === currentSong?._id) {
         setIsFavourite(true);
@@ -91,6 +93,25 @@ export const PlaybackControls = () => {
     return currentSong?.audioUrl
       ? currentSong.audioUrl.split("upload/").join("upload/fl_attachment/")
       : "#";
+  };
+
+  const handleFavorite = () => {
+    setIsFavourite(!isFavourite);
+    if (!isFavourite) {
+      if (currentSong?._id) {
+        if (user?.id) {
+          addToFavorites(currentSong._id, user.id);
+          toast.success("Added to favorites");
+        }
+      }
+    } else {
+      if (currentSong?._id) {
+        if (user?.id) {
+          removeFromFavorites(currentSong._id, user.id);
+          toast.error("Removed from favorites");
+        }
+      }
+    }
   };
 
   return (
@@ -179,22 +200,7 @@ export const PlaybackControls = () => {
                 size="icon"
                 variant="ghost"
                 className="hover:text-white text-zinc-400"
-                onClick={() => {
-                  setIsFavourite(!isFavourite);
-                  if (!isFavourite) {
-                    if (currentSong?._id) {
-                      if (user?.id) {
-                        addToFavorites(currentSong._id, user.id);
-                      }
-                    }
-                  } else {
-                    if (currentSong?._id) {
-                      if (user?.id) {
-                        removeFromFavorites(currentSong._id, user.id);
-                      }
-                    }
-                  }
-                }}
+                onClick={handleFavorite}
               >
                 {isFavourite ? (
                   <BookHeart color="#0bb135" className="h-4 w-4" />

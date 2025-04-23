@@ -21,14 +21,14 @@ const ButtonPlayCustom = ({ song }: { song: Song }) => {
       className={`absolute bottom-3 right-2 ${
         song.premium
           ? "opacity-0"
-          : "transition-all opacity-0 translate-y-2 group-hover:translate-y-0"
+          : "transition-all opacity-100 translate-y-2 group-hover:translate-y-0"
       } hover:scale-105`}
       disabled={song.premium ? true : false}
     >
       {isCurrentSong && isPlaying ? (
-        <Pause color="#ffffff" className="size-5 text-white " />
+        <Pause color="#ffffff" className="size-5 text-white " fill="white" />
       ) : (
-        <Play color="#ffffff" className="size-5 text-white" />
+        <Play color="#ffffff" className="size-5 text-white" fill="white" />
       )}
     </Button>
   );

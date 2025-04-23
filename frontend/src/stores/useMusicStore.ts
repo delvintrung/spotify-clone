@@ -1,5 +1,14 @@
 import { axiosInstance } from "@/lib/axios";
-import { Album, Artist, Favotite, Song, Stats, Playlist, User } from "@/types";
+import {
+  Album,
+  Artist,
+  Favotite,
+  Song,
+  Stats,
+  Playlist,
+  User,
+  Genre,
+} from "@/types";
 import toast from "react-hot-toast";
 import { create } from "zustand";
 
@@ -10,6 +19,7 @@ interface MusicStore {
   users: User[];
   favorites: Favotite[];
   playlists: Playlist[];
+  genres: Genre[];
   isLoading: boolean;
   error: string | null;
   currentAlbum: Album | null;
@@ -29,6 +39,7 @@ interface MusicStore {
   fetchArtists: () => Promise<void>;
   fetchUsers: () => Promise<void>;
   fetchFavoritesByArtistId: (id: string) => Promise<Favotite[]>;
+  fetchGenres: () => Promise<void>;
   deleteSong: (id: string) => Promise<void>;
   deleteArtist: (id: string) => Promise<void>;
   deleteAlbum: (id: string) => Promise<void>;
@@ -43,6 +54,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
   songs: [],
   users: [],
   playlists: [],
+  genres: [],
   isLoading: false,
   error: null,
   currentAlbum: null,
@@ -230,6 +242,18 @@ export const useMusicStore = create<MusicStore>((set) => ({
     try {
       const response = await axiosInstance.get("/songs/trending");
       set({ trendingSongs: response.data });
+    } catch (error: any) {
+      set({ error: error.response.data.message });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchGenres: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axiosInstance.get("/genres");
+      set({ genres: response.data });
     } catch (error: any) {
       set({ error: error.response.data.message });
     } finally {

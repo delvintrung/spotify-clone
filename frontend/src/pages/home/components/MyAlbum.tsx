@@ -21,8 +21,9 @@ import { usePlayerStore } from "@/stores/usePlayerStore";
 import { Playlist, Song } from "@/types";
 import { axiosInstance } from "@/lib/axios";
 import { useUser } from "@clerk/clerk-react";
-import { Pencil } from "lucide-react";
 import EditPlaylistDialog from "./EditPlaylistDialog";
+import toast from "react-hot-toast";
+import DeletePlaylistDialog from "./DeletePlayListDialog";
 
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
@@ -33,7 +34,7 @@ const formatTime = (seconds: number) => {
 const MyAlbum = () => {
   const [songSeleted, setSongSeleted] = useState<Song | null>(null);
   const { currentSong, setCurrentSong, togglePlay } = usePlayerStore();
-  const { songs, fetchSongs } = useMusicStore();
+  const { songs, fetchSongs, fetchPlaylists } = useMusicStore();
   const { initializeQueue } = usePlayerStore();
   const { playlistId } = useParams();
   const { user } = useUser();
@@ -92,6 +93,13 @@ const MyAlbum = () => {
             <div className="flex justify-start items-center">
               <p className="text-gray-300">{user?.fullName}</p>
               {playlist && <EditPlaylistDialog playlist={playlist} />}
+              {playlist && (
+                <DeletePlaylistDialog
+                  playlist={playlist}
+                  redirectOnDelete={true}
+                  refresh={() => fetchPlaylists(user?.id!)}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -157,7 +165,7 @@ const SongFiilter = ({ songs }: { songs: Song[] }) => {
   const handleAddToPlaylist = async (songId: string) => {
     try {
       await axiosInstance.patch(`/playlist/add_song`, { songId, playlistId });
-      console.log("Song added to playlist successfully");
+      toast.success("Song added to playlist successfully!");
     } catch (error) {
       console.error("Error adding song to playlist:", error);
     }

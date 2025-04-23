@@ -10,8 +10,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Play } from "lucide-react";
-
 import ButtonPlayCustom from "@/pages/home/components/ButtonPlayCustom";
 
 const formatTime = (seconds: number) => {
@@ -55,7 +53,7 @@ const ListSong = ({ id }: { id: string }) => {
           {favorites.map((favourite) => (
             <TableRow
               key={favourite._id}
-              className="flex items-center justify-between px-4 rounded-sm hover:cursor-pointer"
+              className="flex items-center justify-between px-4 rounded-sm hover:cursor-pointer min-h-[70px]"
               onMouseOver={() => setIsIconHidden(false)}
               onMouseLeave={() => setIsIconHidden(true)}
               onClick={() => {
@@ -63,7 +61,7 @@ const ListSong = ({ id }: { id: string }) => {
                 handlePlay();
               }}
             >
-              <TableCell className="font-medium flex items-center gap-4 relative">
+              <TableCell className="font-medium flex items-center gap-4 relative justify-center ">
                 <div className="w-10 h-10 absolute top-5 left-0">
                   <ButtonPlayCustom song={favourite.songId} />
                 </div>

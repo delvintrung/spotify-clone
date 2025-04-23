@@ -8,8 +8,11 @@ import {
 import { Pencil } from "lucide-react";
 import AddArtistDialog from "./AddArtistDialog";
 import ArtistsTable from "./ArtistsTable";
+import { useMusicStore } from "@/stores/useMusicStore";
 
 const ArtistsTabContent = () => {
+  const { fetchArtists } = useMusicStore();
+
   return (
     <Card className="bg-zinc-800/50 border-zinc-700/50">
       <CardHeader>
@@ -21,7 +24,7 @@ const ArtistsTabContent = () => {
             </CardTitle>
             <CardDescription>Manage your album collection</CardDescription>
           </div>
-          <AddArtistDialog />
+          <AddArtistDialog refreshTable={() => fetchArtists()} />
         </div>
       </CardHeader>
 
