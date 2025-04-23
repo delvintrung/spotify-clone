@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { axiosInstance } from "@/lib/axios";
 import toast from "react-hot-toast";
-import { Artist, Genre } from "@/types";
+import { Artist } from "@/types";
 import { useMusicStore } from "@/stores/useMusicStore";
 
 interface EditArtistDialogProps {

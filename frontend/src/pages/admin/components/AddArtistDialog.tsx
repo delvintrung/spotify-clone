@@ -19,8 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import toast from "react-hot-toast";
-
-import { Genre, Artist } from "@/types";
+import { Artist } from "@/types";
 import { useMusicStore } from "@/stores/useMusicStore";
 
 interface AddArtistDialogProps {
