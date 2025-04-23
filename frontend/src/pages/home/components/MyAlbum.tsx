@@ -34,11 +34,16 @@ const formatTime = (seconds: number) => {
 const MyAlbum = () => {
   const [songSeleted, setSongSeleted] = useState<Song | null>(null);
   const { currentSong, setCurrentSong, togglePlay } = usePlayerStore();
-  const { songs, fetchSongs, fetchPlaylists } = useMusicStore();
+  const {
+    songs,
+    currentPlaylist,
+    fetchSongs,
+    fetchPlaylists,
+    fetchPlaylistById,
+  } = useMusicStore();
   const { initializeQueue } = usePlayerStore();
   const { playlistId } = useParams();
   const { user } = useUser();
-  const [playlist, setPlaylist] = useState<Playlist>();
   const isCurrentSong = currentSong?._id === songSeleted?._id;
 
   const handlePlay = () => {
@@ -49,25 +54,9 @@ const MyAlbum = () => {
     fetchSongs();
   }, [fetchSongs]);
 
-  const fetchPlaylistById = async (playlistId: string) => {
-    try {
-      const response = await axiosInstance.get(`/playlist/${playlistId}`);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching playlist:", error);
-    }
-  };
-
   useEffect(() => {
-    const getPlaylist = async () => {
-      if (playlistId) {
-        const data = await fetchPlaylistById(playlistId);
-        setPlaylist(data);
-      }
-    };
-
     if (playlistId) {
-      getPlaylist();
+      fetchPlaylistById(playlistId);
     }
   }, [playlistId]);
 
@@ -83,19 +72,21 @@ const MyAlbum = () => {
         <div className="mt-10 mb-5 flex px-10 gap-5">
           <img
             className="w-40 h-40 shadow-lg rounded-lg"
-            src={playlist?.avatar}
+            src={currentPlaylist?.avatar}
           />
           <div className="mt-20">
-            <p className="text-sm text-gray-300">{playlist?.title}</p>
+            <p className="text-sm text-gray-300">{currentPlaylist?.title}</p>
             <h2 className="text-3xl font-bold text-gray-300">
-              {playlist?.title}
+              {currentPlaylist?.title}
             </h2>
             <div className="flex justify-start items-center">
               <p className="text-gray-300">{user?.fullName}</p>
-              {playlist && <EditPlaylistDialog playlist={playlist} />}
-              {playlist && (
+              {currentPlaylist && (
+                <EditPlaylistDialog playlist={currentPlaylist} />
+              )}
+              {currentPlaylist && (
                 <DeletePlaylistDialog
-                  playlist={playlist}
+                  playlist={currentPlaylist}
                   redirectOnDelete={true}
                   refresh={() => fetchPlaylists(user?.id!)}
                 />
@@ -107,8 +98,8 @@ const MyAlbum = () => {
 
       <div className="">
         <HeaderAlbum />
-        {playlist?.songs?.length! > 0 &&
-          playlist?.songs?.map((song) => (
+        {currentPlaylist?.songs?.length! > 0 &&
+          currentPlaylist?.songs?.map((song) => (
             <div
               key={song._id}
               className="flex items-center justify-between px-20 py-2 rounded-sm h-18 hover:cursor-pointer"
@@ -133,13 +124,21 @@ const MyAlbum = () => {
               </div>
             </div>
           ))}
-        <SongFiilter songs={songs} />
+        <SongFiilter
+          songs={songs}
+          reloadPlaylist={() => fetchPlaylistById(playlistId ?? "")}
+        />
       </div>
     </div>
   );
 };
 
-const SongFiilter = ({ songs }: { songs: Song[] }) => {
+interface SongFilterProps {
+  songs: Song[];
+  reloadPlaylist?: () => void;
+}
+
+const SongFiilter = ({ songs, reloadPlaylist }: SongFilterProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [filteredSongs, setFilteredSongs] = useState<Song[]>(songs);
   const { currentSong, setCurrentSong, togglePlay } = usePlayerStore();
@@ -165,6 +164,7 @@ const SongFiilter = ({ songs }: { songs: Song[] }) => {
   const handleAddToPlaylist = async (songId: string) => {
     try {
       await axiosInstance.patch(`/playlist/add_song`, { songId, playlistId });
+      reloadPlaylist && reloadPlaylist();
       toast.success("Song added to playlist successfully!");
     } catch (error) {
       console.error("Error adding song to playlist:", error);

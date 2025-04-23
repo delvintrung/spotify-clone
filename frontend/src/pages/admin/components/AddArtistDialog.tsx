@@ -18,9 +18,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import { Artist } from "@/types";
 import { useMusicStore } from "@/stores/useMusicStore";
+import { axiosInstance } from "@/lib/axios";
 
 interface AddArtistDialogProps {
   refreshTable: () => void;
@@ -40,6 +42,9 @@ const AddArtistDialog = ({ refreshTable }: AddArtistDialogProps) => {
     birthdate: new Date(),
     imageUrl: "",
     genres: [],
+    description: "",
+    listeners: 0,
+    followers: 0,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -87,6 +92,15 @@ const AddArtistDialog = ({ refreshTable }: AddArtistDialogProps) => {
       if (!newArtist.genres || newArtist.genres.length === 0) {
         return toast.error("Please select at least one genre");
       }
+      if (newArtist.followers! < 0) {
+        return toast.error("Followers cannot be negative");
+      }
+      if (newArtist.listeners! < 0) {
+        return toast.error("Listeners cannot be negative");
+      }
+      if (!newArtist.description?.trim()) {
+        return toast.error("Description cannot exceed 500 characters");
+      }
 
       const formData = new FormData();
       formData.append("name", newArtist.name);
@@ -97,22 +111,28 @@ const AddArtistDialog = ({ refreshTable }: AddArtistDialogProps) => {
       newArtist.genres.forEach((genreId) => {
         formData.append("genreIds[]", genreId);
       });
+      formData.append("description", newArtist.description || "");
+      formData.append("followers", newArtist.followers?.toString() || "0");
+      formData.append("listeners", newArtist.listeners?.toString() || "0");
 
-      // const res = await axiosInstance.post("/admin/artists", formData, {
-      //   headers: {
-      //     "Content-Type": "multipart/form-data",
-      //   },
-      // });
+      const res = await axiosInstance.post("/admin/artists", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-      // if (res.status !== 201) {
-      //   throw new Error(res.data.message || "Failed to create artist");
-      // }
+      if (res.status !== 201) {
+        throw new Error(res.data.message || "Failed to create artist");
+      }
 
       setNewArtist({
         name: "",
         birthdate: new Date(),
         imageUrl: "",
         genres: [],
+        description: "",
+        listeners: 0,
+        followers: 0,
       });
       setImageFile(null);
       if (fileInputRef.current) {
@@ -138,6 +158,9 @@ const AddArtistDialog = ({ refreshTable }: AddArtistDialogProps) => {
         birthdate: new Date(),
         imageUrl: "",
         genres: [],
+        description: "",
+        listeners: 0,
+        followers: 0,
       });
       setImageFile(null);
       if (fileInputRef.current) {
@@ -265,6 +288,47 @@ const AddArtistDialog = ({ refreshTable }: AddArtistDialogProps) => {
                 </>
               )}
             </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Description</label>
+            <Textarea
+              value={newArtist.description}
+              onChange={(e) =>
+                setNewArtist({ ...newArtist, description: e.target.value })
+              }
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="Enter description"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Followers: </label>
+            <Input
+              value={newArtist.followers}
+              onChange={(e) =>
+                setNewArtist({
+                  ...newArtist,
+                  followers: parseInt(e.target.value) || 0,
+                })
+              }
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="Enter followers"
+              type="number"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Listeners</label>
+            <Input
+              value={newArtist.listeners}
+              onChange={(e) =>
+                setNewArtist({
+                  ...newArtist,
+                  listeners: parseInt(e.target.value) || 0,
+                })
+              }
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="Enter listeners"
+              type="number"
+            />
           </div>
         </div>
         <DialogFooter>

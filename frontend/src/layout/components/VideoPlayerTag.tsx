@@ -15,23 +15,18 @@ const VideoPlayer = () => {
 
   // handle song ends
   useEffect(() => {
-    const audio = videoRef.current;
+    const video = videoRef.current;
 
     const handleEnded = () => {
-      if (isRepeat) {
-        console.log(videoRef.current);
-        if (videoRef.current) {
-            videoRef.current.currentTime = 0;
-            videoRef.current.play();
-        }
-      } else {
-        playNext();
+      if (videoRef.current) {
+        videoRef.current.currentTime = 0;
+        videoRef.current.play();
       }
     };
 
-    audio?.addEventListener("ended", handleEnded);
+    video?.addEventListener("ended", handleEnded);
 
-    return () => audio?.removeEventListener("ended", handleEnded);
+    return () => video?.removeEventListener("ended", handleEnded);
   }, [playNext, isRepeat]);
 
   // handle song changes
@@ -53,6 +48,11 @@ const VideoPlayer = () => {
     }
   }, [currentSong, isPlaying]);
 
-  return <video ref={videoRef} className="w-full h-screen object-cover rounded-lg absolute top-0 left-0 min-w-[250px]" />;
+  return (
+    <video
+      ref={videoRef}
+      className="w-full h-screen object-cover rounded-lg absolute top-0 left-0 min-w-[250px]"
+    />
+  );
 };
 export default VideoPlayer;

@@ -23,6 +23,7 @@ interface MusicStore {
   isLoading: boolean;
   error: string | null;
   currentAlbum: Album | null;
+  currentPlaylist: Playlist | null;
   featuredSongs: Song[];
   madeForYouSongs: Song[];
   trendingSongs: Song[];
@@ -45,6 +46,7 @@ interface MusicStore {
   deleteAlbum: (id: string) => Promise<void>;
   addToFavorites: (songId: string, clerkId: string) => Promise<void>;
   removeFromFavorites: (songId: string, clerkId: string) => Promise<void>;
+  fetchPlaylistById: (playlistId: string) => Promise<void>;
 }
 
 export const useMusicStore = create<MusicStore>((set) => ({
@@ -58,6 +60,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
   isLoading: false,
   error: null,
   currentAlbum: null,
+  currentPlaylist: null,
   madeForYouSongs: [],
   featuredSongs: [],
   trendingSongs: [],
@@ -302,6 +305,17 @@ export const useMusicStore = create<MusicStore>((set) => ({
     try {
       const response = await axiosInstance.get("/users");
       set({ users: response.data });
+    } catch (error: any) {
+      set({ error: error.response.data.message });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  fetchPlaylistById: async (playlistId) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axiosInstance.get(`/playlist/${playlistId}`);
+      set({ currentPlaylist: response.data });
     } catch (error: any) {
       set({ error: error.response.data.message });
     } finally {
