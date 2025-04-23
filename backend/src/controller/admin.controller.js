@@ -3,6 +3,8 @@ import { Artist } from "../models/artist.model.js";
 import { Album } from "../models/album.model.js";
 import { Playlist } from "../models/playlist.model.js";
 import cloudinary from "../lib/cloudinary.js";
+import { clerkClient } from "@clerk/express";
+import { Genre } from "../models/genre.model.js";
 
 // helper function for cloudinary uploads
 const uploadToCloudinary = async (file) => {
@@ -117,7 +119,6 @@ export const deleteSong = async (req, res, next) => {
 
     const song = await Song.findById(id);
 
-    // if song belongs to an album, update the album's songs array
     if (song.albumId) {
       await Album.findByIdAndUpdate(song.albumId, {
         $pull: { songs: song._id },
@@ -135,28 +136,45 @@ export const deleteSong = async (req, res, next) => {
 
 export const createArtist = async (req, res, next) => {
   try {
-    if (!req.files || !req.files.imageFile) {
-      return res.status(400).json({ message: "Please upload all files" });
+    const { name, birthdate, "genreIds[]": genreIds } = req.body;
+    const { imageFile } = req.files || {};
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ message: "Artist name is required" });
+    }
+    if (!birthdate || isNaN(new Date(birthdate).getTime())) {
+      return res.status(400).json({ message: "Valid birthdate is required" });
+    }
+    if (!genreIds || !Array.isArray(genreIds) || genreIds.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "At least one genre is required" });
     }
 
-    const { name, birthdate } = req.body;
-    const imageFile = req.files.imageFile;
+    const genres = await Genre.find({ _id: { $in: genreIds } });
+    if (genres.length !== genreIds.length) {
+      return res
+        .status(400)
+        .json({ message: "One or more genre IDs are invalid" });
+    }
 
-    console.log("imageFile", imageFile, name, birthdate);
-
-    const imageUrl = await uploadToCloudinary(imageFile);
+    let imageUrl = "";
+    if (imageFile) {
+      imageUrl = await uploadToCloudinary(imageFile);
+    }
 
     const artist = new Artist({
       name,
-      birthdate,
+      birthdate: new Date(birthdate),
       imageUrl,
+      genres: genreIds,
     });
 
     await artist.save();
 
     res.status(201).json(artist);
   } catch (error) {
-    console.log("Error in createSong", error);
+    console.error("Error in createArtist:", error);
     next(error);
   }
 };
@@ -335,6 +353,26 @@ export const updatePlaylist = async (req, res, next) => {
   }
 };
 
+export const deletePlaylist = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await Playlist.findByIdAndDelete(id);
+    res.status(200).json({ message: "Playlist deleted successfully" });
+  } catch (error) {
+    console.log("Error in deletePlaylist", error);
+    next(error);
+  }
+};
+
 export const checkAdmin = async (req, res, next) => {
-  res.status(200).json({ admin: true });
+  const currentUser = await clerkClient.users.getUser(req.auth.userId);
+  const isAdmin =
+    process.env.ADMIN_EMAIL === currentUser.primaryEmailAddress?.emailAddress;
+  if (!isAdmin) {
+    return res
+      .status(403)
+      .json({ admin: false, message: "Unauthorized - you must be an admin" });
+  } else {
+    return res.status(200).json({ admin: true, message: "You are an admin" });
+  }
 };

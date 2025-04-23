@@ -10,6 +10,7 @@ import {
 import { useMusicStore } from "@/stores/useMusicStore";
 import { Calendar, Trash2 } from "lucide-react";
 import { useEffect } from "react";
+import EditArtistDialog from "./EditArtistDialog";
 
 const ArtistsTable = () => {
   const { artists, deleteArtist, fetchArtists } = useMusicStore();
@@ -58,6 +59,10 @@ const ArtistsTable = () => {
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex gap-2 justify-end">
+                  <EditArtistDialog
+                    currentArtist={artist}
+                    refreshTable={() => fetchArtists()}
+                  />
                   <Button
                     variant="ghost"
                     size="sm"

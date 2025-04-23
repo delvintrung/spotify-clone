@@ -78,3 +78,10 @@ export interface Favotite {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface Genre {
+  _id: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+}

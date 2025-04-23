@@ -7,5 +7,5 @@ const genreSchema = new mongoose.Schema(
     imageUrl: { type: String, required: true },
   },
   { timestamps: true }
-); //  createdAt, updatedAt
+);
 export const Genre = mongoose.model("Genre", genreSchema);
