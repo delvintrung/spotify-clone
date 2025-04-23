@@ -8,7 +8,7 @@ import LeftSidebar from "./components/LeftSidebar";
 import AudioPlayer from "./components/AudioPlayer";
 import { PlaybackControls } from "./components/PlaybackControls";
 import { useEffect, useState } from "react";
-import VideoPlayer from "./components/VideoPlayer";
+import VideoPlayer from "./components/VideoPlayerTab";
 
 const MainLayout = () => {
   const [isMobile, setIsMobile] = useState(false);
