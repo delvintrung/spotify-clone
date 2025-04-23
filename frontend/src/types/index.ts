@@ -5,6 +5,7 @@ export interface Song {
   albumId: string | null;
   imageUrl: string;
   audioUrl: string;
+  videoUrl?: string;
   duration: number;
   createdAt: string;
   updatedAt: string;
@@ -15,7 +16,10 @@ export interface Artist {
   name: string;
   birthdate: Date;
   imageUrl: string;
+  description?: string;
   genres?: Genre[];
+  listeners?: number;
+  followers?: number;
 }
 
 export interface Genre {
