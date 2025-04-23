@@ -12,6 +12,18 @@ import { Calendar, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import EditArtistDialog from "./EditArtistDialog";
 
+function formatVietnamDate(isoString: string) {
+  const date = new Date(isoString);
+  const vietnamOffset = 7 * 60;
+  const localDate = new Date(date.getTime() + vietnamOffset * 60 * 1000);
+
+  const day = localDate.getDate().toString().padStart(2, "0");
+  const month = (localDate.getMonth() + 1).toString().padStart(2, "0");
+  const year = localDate.getFullYear();
+
+  return `${day}/${month}/${year}`;
+}
+
 const ArtistsTable = () => {
   const { artists, deleteArtist, fetchArtists } = useMusicStore();
 
@@ -45,7 +57,7 @@ const ArtistsTable = () => {
               <TableCell>
                 <span className="inline-flex items-center gap-1 text-zinc-400">
                   <Calendar className="h-4 w-4" />
-                  {artist.birthdate.toString()}
+                  {formatVietnamDate(artist.birthdate.toString())}
                 </span>
               </TableCell>
               <TableCell>

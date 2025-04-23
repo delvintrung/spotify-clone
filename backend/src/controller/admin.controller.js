@@ -136,7 +136,14 @@ export const deleteSong = async (req, res, next) => {
 
 export const createArtist = async (req, res, next) => {
   try {
-    const { name, birthdate, "genreIds[]": genreIds } = req.body;
+    const {
+      name,
+      birthdate,
+      "genreIds[]": genreIds,
+      description,
+      listeners,
+      followers,
+    } = req.body;
     const { imageFile } = req.files || {};
 
     if (!name || !name.trim()) {
@@ -144,6 +151,21 @@ export const createArtist = async (req, res, next) => {
     }
     if (!birthdate || isNaN(new Date(birthdate).getTime())) {
       return res.status(400).json({ message: "Valid birthdate is required" });
+    }
+    if (!description || !description.trim()) {
+      return res
+        .status(400)
+        .json({ message: "Artist description is required" });
+    }
+    if (!listeners || isNaN(listeners) || listeners < 0) {
+      return res
+        .status(400)
+        .json({ message: "Valid listeners count is required" });
+    }
+    if (!followers || isNaN(followers) || followers < 0) {
+      return res
+        .status(400)
+        .json({ message: "Valid followers count is required" });
     }
     if (!genreIds || !Array.isArray(genreIds) || genreIds.length === 0) {
       return res
@@ -168,6 +190,9 @@ export const createArtist = async (req, res, next) => {
       birthdate: new Date(birthdate),
       imageUrl,
       genres: genreIds,
+      description,
+      listeners: parseInt(listeners),
+      followers: parseInt(followers),
     });
 
     await artist.save();
