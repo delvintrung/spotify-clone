@@ -228,7 +228,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axiosInstance.get(
-        `/favorites/favorite?userId=${id}`
+        `/favorites/favorite?clerkId=${id}`
       );
       set({ favorites: response.data });
       return response.data;
@@ -267,7 +267,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
   addToFavorites: async (songId, clerkId) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.post("/favorites", {
+      const response = await axiosInstance.post("/favorites/add", {
         songId,
         clerkId,
       });
@@ -285,7 +285,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
   removeFromFavorites: async (songId, clerkId) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.delete("/favorites", {
+      await axiosInstance.delete("/favorites/remove", {
         data: { songId, clerkId },
       });
       set((state) => ({

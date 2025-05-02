@@ -5,7 +5,6 @@ import {
   getPlaylists,
   getPlaylistsById,
 } from "../controller/playlist.controller.js";
-import { get } from "mongoose";
 
 const router = Router();
 
