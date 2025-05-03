@@ -18,17 +18,27 @@ const formatTime = (date: string) => {
 
 const ChatPage = () => {
   const { user } = useUser();
-  const { messages, selectedUser, fetchUsers, fetchMessages } = useChatStore();
+  const { messages, selectedUser, fetchUsers, fetchMessages, initSocket } =
+    useChatStore();
 
   useEffect(() => {
-    if (user) fetchUsers();
-  }, [fetchUsers, user]);
+    console.log("ChatPage mounted, user:", user);
+    if (user) {
+      console.log("Initializing socket for user:", user.id);
+      initSocket(user.id);
+      fetchUsers();
+    }
+  }, [fetchUsers, user, initSocket]);
 
   useEffect(() => {
-    if (selectedUser) fetchMessages(selectedUser.clerkId);
+    console.log("Selected user changed:", selectedUser);
+    if (selectedUser) {
+      console.log("Fetching messages for user:", selectedUser.clerkId);
+      fetchMessages(selectedUser.clerkId);
+    }
   }, [selectedUser, fetchMessages]);
 
-  console.log({ messages });
+  console.log("Current messages:", messages);
 
   return (
     <main className="h-full rounded-lg bg-gradient-to-b from-zinc-800 to-zinc-900 overflow-hidden">

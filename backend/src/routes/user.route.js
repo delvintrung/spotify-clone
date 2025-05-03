@@ -11,7 +11,7 @@ const router = Router();
 router.get("/", getAllUsers);
 router.get("/check-premium", getUserByUserId);
 
-router.get("/messages/:userId", protectRoute, getMessages);
+router.get("/messages/:userId", getMessages);
 router.post("/buy-premium", buyPremiumSuccess);
 
 export default router;
