@@ -1,5 +1,5 @@
 import { SignedOut, UserButton } from "@clerk/clerk-react";
-import { LayoutDashboardIcon, Search } from "lucide-react";
+import { LayoutDashboardIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import SignInOAuthButtons from "./SignInOAuthButtons";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -8,13 +8,12 @@ import { buttonVariants } from "./ui/button";
 import BuyPremiumButton from "./BuyPremiumButton";
 import PremiumCircle from "./PremiumCircle";
 import { useUser } from "@clerk/clerk-react";
-import { useMusicStore } from "@/stores/useMusicStore";
 import { SearchSong } from "./SearchSong";
 
 const Topbar = () => {
   const { isAdmin, isPremium } = useAuthStore();
   const { isSignedIn } = useUser();
-  
+
   return (
     <div
       className="flex items-center justify-between p-4 sticky top-0 bg-zinc-900/75 
@@ -25,7 +24,7 @@ const Topbar = () => {
         <span className="text-white font-bold">Spotify</span>
       </div>
       <div className="flex items-center gap-4">
-        <SearchSong/>
+        <SearchSong />
         {isSignedIn && <BuyPremiumButton isPremium={isPremium} />}
         {isAdmin && (
           <Link
@@ -49,4 +48,3 @@ const Topbar = () => {
 };
 
 export default Topbar;
-

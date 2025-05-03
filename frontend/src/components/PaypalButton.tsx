@@ -11,7 +11,7 @@ const PayPalButton: React.FC = () => {
       purchase_units: [
         {
           amount: {
-            value: "10.00",
+            value: "0.01",
             currency_code: "USD",
           },
         },
@@ -22,9 +22,18 @@ const PayPalButton: React.FC = () => {
   const onApprove = (data: any, actions: any) => {
     return actions.order.capture().then(async (details: any) => {
       const payerName = details.payer?.name?.given_name || "Người dùng";
-      setSuccess(true);
-      const res = await axiosInstance.post("/users/buy-premium");
+      const csrfResponse = await axiosInstance.get("users/get-csrf-token", {
+        withCredentials: true,
+      });
+      const csrfToken = csrfResponse.data.csrfToken;
+      const res = await axiosInstance.post("/users/buy-premium", {
+        headers: {
+          "X-CSRFToken": csrfToken,
+        },
+        withCredentials: true,
+      });
       if (res.status === 200) {
+        setSuccess(true);
         console.log("Mua premium thành công!");
         alert(`Thanh toán thành công bởi ${payerName}`);
         console.log("Chi tiết giao dịch:", details);

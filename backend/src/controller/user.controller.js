@@ -45,7 +45,6 @@ export const getUserByUserId = async (req, res, next) => {
 export const buyPremiumSuccess = async (req, res, next) => {
   try {
     const userId = req.auth.userId;
-    console.log(req.auth);
     if (userId) {
       const userUpdate = await User.updateOne(
         { clerkId: userId },

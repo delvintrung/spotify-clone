@@ -114,7 +114,7 @@ const MyAlbum = () => {
                 </div>
                 <div>
                   <p className="text-xl ">{song.title}</p>
-                  <p className="text-xs text-zinc-400">{song.artist.name}</p>
+                  <p className="text-xs text-zinc-400">{song.artist?.name}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -215,7 +215,7 @@ const SongFiilter = ({ songs, reloadPlaylist }: SongFilterProps) => {
                   </div>
                   <div>
                     <p className="text-xl ">{song.title}</p>
-                    <p className="text-xs text-zinc-400">{song.artist.name}</p>
+                    <p className="text-xs text-zinc-400">{song.artist?.name}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
