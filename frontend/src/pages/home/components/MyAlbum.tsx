@@ -163,7 +163,7 @@ const SongFiilter = ({ songs, reloadPlaylist }: SongFilterProps) => {
 
   const handleAddToPlaylist = async (songId: string) => {
     try {
-      await axiosInstance.patch(`/playlist/add_song`, { songId, playlistId });
+      await axiosInstance.post(`/playlists/add_song`, { songId, playlistId });
       reloadPlaylist && reloadPlaylist();
       toast.success("Song added to playlist successfully!");
     } catch (error) {

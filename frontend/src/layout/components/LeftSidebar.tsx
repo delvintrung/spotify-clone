@@ -24,8 +24,14 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const LeftSidebar = () => {
-  const { albums, playlists, fetchAlbums, fetchPlaylists, isLoading } =
-    useMusicStore();
+  const {
+    albums,
+    currentPlaylist,
+    playlists,
+    fetchAlbums,
+    fetchPlaylists,
+    isLoading,
+  } = useMusicStore();
   const { user } = useUser();
 
   useEffect(() => {
@@ -33,9 +39,15 @@ const LeftSidebar = () => {
     fetchPlaylists(user?.id!);
   }, [fetchAlbums, fetchPlaylists]);
 
+  useEffect(() => {
+    if (currentPlaylist) {
+      fetchPlaylists(user?.id!);
+    }
+  }, [currentPlaylist, user?.id]);
+
   const handleCreatePlaylist = () => {
     axiosInstance
-      .post("/playlist", {
+      .post("/playlists/create", {
         title: `Playlist ${user?.fullName!}`,
         clerkId: user?.id,
       })

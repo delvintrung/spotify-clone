@@ -13,16 +13,16 @@ import FavouriteSong from "./pages/favorite/FavouriteSong";
 import MyAlbum from "./pages/home/components/MyAlbum";
 
 function App() {
-	return (
-		<>
-		<Routes>
-			<Route
-			path="/sso-callback"
-			element={
-				<AuthenticateWithRedirectCallback
-				signUpForceRedirectUrl={"/auth-callback"}
-				/>
-			}
+  return (
+    <>
+      <Routes>
+        <Route
+          path="/sso-callback"
+          element={
+            <AuthenticateWithRedirectCallback
+              signUpForceRedirectUrl={"/auth-callback"}
+            />
+          }
         />
         <Route path="/auth-callback" element={<AuthCallbackPage />} />
         <Route path="/admin" element={<AdminPage />} />

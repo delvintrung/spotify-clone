@@ -3,20 +3,24 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import LeftSidebar from "./components/LeftSidebar";
 import AudioPlayer from "./components/AudioPlayer";
 import { PlaybackControls } from "./components/PlaybackControls";
 import { useEffect, useState } from "react";
 import VideoPlayer from "./components/VideoPlayerTab";
+import FriendsActivity from "./components/FriendsActivity";
 
 const MainLayout = () => {
   const [isMobile, setIsMobile] = useState(false);
+  const [isChatPage, setIsChatPage] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
+    setIsChatPage(location.pathname === "/chat" ? true : false);
 
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -57,8 +61,7 @@ const MainLayout = () => {
               maxSize={25}
               collapsedSize={0}
             >
-              <VideoPlayer />
-              {/* <FriendsActivity /> */}
+              {isChatPage ? <FriendsActivity /> : <VideoPlayer />}
             </ResizablePanel>
           </>
         )}

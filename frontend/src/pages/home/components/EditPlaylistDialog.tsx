@@ -58,8 +58,8 @@ const EditPlaylistDialog = ({
         formData.append("avatar", imageFile);
       }
 
-      const response = await axiosInstance.put(
-        `admin/playlists/${playlist._id}`,
+      const response = await axiosInstance.post(
+        `admin/playlists/${playlist._id}/update`,
         formData,
         {
           headers: {
