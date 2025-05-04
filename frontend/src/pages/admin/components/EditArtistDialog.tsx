@@ -113,7 +113,7 @@ const EditArtistDialog = ({
       });
 
       const res = await axiosInstance.put(
-        `/admin/artists/${currentArtist._id}`,
+        `/admin/artists/update/${currentArtist._id}`,
         formData,
         {
           headers: {

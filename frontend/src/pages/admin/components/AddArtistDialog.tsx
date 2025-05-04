@@ -115,7 +115,7 @@ const AddArtistDialog = ({ refreshTable }: AddArtistDialogProps) => {
       formData.append("followers", newArtist.followers?.toString() || "0");
       formData.append("listeners", newArtist.listeners?.toString() || "0");
 
-      const res = await axiosInstance.post("/admin/artists", formData, {
+      const res = await axiosInstance.post("/admin/artists/create", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
