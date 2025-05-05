@@ -8,9 +8,12 @@ interface PlayerStore {
   isRepeat: boolean;
   queue: Song[];
   currentIndex: number;
+  hasLyrics: boolean;
 
   initializeQueue: (songs: Song[]) => void;
   playAlbum: (songs: Song[], startIndex?: number) => void;
+  openLyricsTab: (haslyric: boolean) => void;
+  closeLyricsTab: () => void;
   setCurrentSong: (song: Song | null) => void;
   togglePlay: () => void;
   toggleRepeat: () => void;
@@ -24,6 +27,14 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   isRepeat: false,
   queue: [],
   currentIndex: -1,
+  hasLyrics: false,
+
+  openLyricsTab: (haslyric: boolean) => {
+    set({ hasLyrics: haslyric });
+  },
+  closeLyricsTab: () => {
+    set({ hasLyrics: false });
+  },
 
   initializeQueue: (songs: Song[]) => {
     set({

@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { axiosInstance } from "@/lib/axios";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { Plus, Upload } from "lucide-react";
@@ -27,6 +28,7 @@ interface NewSong {
   artist: string;
   album: string;
   duration: string;
+  lyrics?: string;
 }
 
 const AddSongDialog = () => {
@@ -39,6 +41,7 @@ const AddSongDialog = () => {
     artist: "",
     album: "",
     duration: "0",
+    lyrics: "",
   });
 
   const [files, setFiles] = useState<{
@@ -76,10 +79,13 @@ const AddSongDialog = () => {
       if (newSong.album && newSong.album !== "none") {
         formData.append("albumId", newSong.album);
       }
+      if (newSong.lyrics) {
+        formData.append("lyrics", newSong.lyrics);
+      }
       formData.append("audioFile", files.audio);
       formData.append("imageFile", files.image);
 
-      await axiosInstance.post("/admin/songs", formData, {
+      await axiosInstance.post("/admin/create/songs", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -257,6 +263,17 @@ const AddSongDialog = () => {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Lyrics (Optional)</label>
+            <Textarea
+              value={newSong.lyrics}
+              onChange={(e) =>
+                setNewSong({ ...newSong, lyrics: e.target.value || "" })
+              }
+              className="bg-zinc-800 border-zinc-700"
+            />
           </div>
         </div>
 

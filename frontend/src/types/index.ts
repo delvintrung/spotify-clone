@@ -10,6 +10,7 @@ export interface Song {
   createdAt: string;
   updatedAt: string;
   premium?: boolean;
+  lyrics?: string;
 }
 export interface Artist {
   _id?: string;
@@ -43,9 +44,9 @@ export interface Album {
   _id: string;
   title: string;
   artist: string;
-  imageUrl: string;
-  releaseYear: number;
-  songs: Song[];
+  imageUrl?: string;
+  releaseYear?: number;
+  songs?: Song[];
 }
 
 export interface Stats {

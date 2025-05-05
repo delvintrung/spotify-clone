@@ -10,17 +10,21 @@ import { PlaybackControls } from "./components/PlaybackControls";
 import { useEffect, useState } from "react";
 import VideoPlayer from "./components/VideoPlayerTab";
 import FriendsActivity from "./components/FriendsActivity";
+import LyricsDisplay from "@/components/LyricsDisplay";
+import { usePlayerStore } from "@/stores/usePlayerStore";
+import { useChatStore } from "@/stores/useChatStoreDjango";
 
 const MainLayout = () => {
   const [isMobile, setIsMobile] = useState(false);
-  const [isChatPage, setIsChatPage] = useState(false);
   const location = useLocation();
+  const { hasLyrics } = usePlayerStore();
+  const { isChatPage, setIsChatPage } = useChatStore();
 
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    setIsChatPage(location.pathname === "/chat" ? true : false);
+    location.pathname === "/chat" ? setIsChatPage(true) : setIsChatPage(false);
 
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -47,7 +51,7 @@ const MainLayout = () => {
 
         {/* Main content */}
         <ResizablePanel defaultSize={isMobile ? 80 : 60}>
-          <Outlet />
+          {hasLyrics ? <LyricsDisplay /> : <Outlet />}
         </ResizablePanel>
 
         {!isMobile && (

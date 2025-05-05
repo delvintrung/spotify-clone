@@ -32,10 +32,13 @@ export const PlaybackControls = () => {
     currentSong,
     isPlaying,
     isRepeat,
+    hasLyrics,
     togglePlay,
     playNext,
     playPrevious,
     toggleRepeat,
+    openLyricsTab,
+    closeLyricsTab,
   } = usePlayerStore();
   const { favorites, addToFavorites, removeFromFavorites } = useMusicStore();
 
@@ -111,6 +114,14 @@ export const PlaybackControls = () => {
           toast.error("Removed from favorites");
         }
       }
+    }
+  };
+
+  const handleOpenLyricsTab = () => {
+    if (hasLyrics) {
+      closeLyricsTab();
+    } else {
+      openLyricsTab(currentSong?.lyrics ? true : false);
     }
   };
 
@@ -245,8 +256,13 @@ export const PlaybackControls = () => {
             size="icon"
             variant="ghost"
             className="hover:text-white text-zinc-400"
+            onClick={handleOpenLyricsTab}
           >
-            <Mic2 className="h-4 w-4" />
+            {hasLyrics ? (
+              <Mic2 className="h-4 w-4" fill="green" />
+            ) : (
+              <Mic2 className="h-4 w-4" />
+            )}
           </Button>
           <Button
             size="icon"

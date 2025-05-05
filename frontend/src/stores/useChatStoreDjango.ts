@@ -13,7 +13,9 @@ interface ChatStore {
   messages: Message[];
   selectedUser: User | null;
   messageError: string | null;
+  isChatPage: boolean;
 
+  setIsChatPage: (isChatPage: boolean) => void;
   fetchUsers: () => Promise<void>;
   initSocket: (userId: string) => void;
   disconnectSocket: () => void;
@@ -38,6 +40,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   messages: [],
   selectedUser: null,
   messageError: null,
+  isChatPage: false,
+
+  setIsChatPage: (isChatPage: boolean) => set({ isChatPage }),
 
   setSelectedUser: (user) => set({ selectedUser: user }),
 

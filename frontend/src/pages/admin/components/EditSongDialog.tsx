@@ -18,16 +18,19 @@ import {
 } from "@/components/ui/select";
 import { axiosInstance } from "@/lib/axios";
 import { useMusicStore } from "@/stores/useMusicStore";
-import { Song } from "@/types";
+import { Album, Song } from "@/types";
+import { Textarea } from "flowbite-react";
 import { Pencil } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { isObject } from "util";
 
 interface NewSong {
   title: string;
   artist: string;
   album: string;
   duration: string;
+  lyrics?: string;
 }
 
 interface EditSongDialogProps {
@@ -74,6 +77,9 @@ const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
       if (newSong.duration !== currentSong.duration?.toString()) {
         formData.append("duration", newSong.duration);
       }
+      if (newSong.lyrics !== currentSong.lyrics) {
+        formData.append("lyrics", newSong.lyrics || "");
+      }
       if (
         newSong.album !== (currentSong.albumId ?? "none") &&
         newSong.album !== "none"
@@ -90,7 +96,7 @@ const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
       }
 
       const res = await axiosInstance.put(
-        `/admin/songs?id=${currentSong._id}`,
+        `/admin/songs/${currentSong._id}`,
         formData,
         {
           headers: {
@@ -298,6 +304,17 @@ const EditSongDialog = ({ currentSong }: EditSongDialogProps) => {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Lyrics (Optional)</label>
+            <Textarea
+              value={newSong.lyrics}
+              onChange={(e) =>
+                setNewSong({ ...newSong, lyrics: e.target.value || "0" })
+              }
+              className="bg-zinc-800 border-zinc-700"
+            />
           </div>
         </div>
 

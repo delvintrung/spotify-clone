@@ -6,19 +6,22 @@ import { Pause, Play } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import PayPalButton from "@/components/PaypalButton";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useChatStore } from "@/stores/useChatStoreDjango";
 
 const PlayButton = ({ song }: { song: Song }) => {
   const { currentSong, isPlaying, setCurrentSong, togglePlay } =
     usePlayerStore();
   const isCurrentSong = currentSong?._id === song._id;
   const [openPaypal, setOpenPaypal] = useState(false);
-  console.log("openPaypal", openPaypal);
+  const { setIsChatPage } = useChatStore();
 
-  const handlePlay = () => {
-    if (isCurrentSong) togglePlay();
-    else setCurrentSong(song);
-  };
   const { isPremium } = useAuthStore();
+  const handlePlay = () => {
+    if (isCurrentSong) {
+      togglePlay();
+      setIsChatPage(false);
+    } else setCurrentSong(song);
+  };
 
   return (
     <Dialog>
