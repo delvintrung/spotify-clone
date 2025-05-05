@@ -25,7 +25,7 @@ import toast from "react-hot-toast";
 
 interface EditAlbumDialogProps {
   album: Album;
-  refreshTable: () => void; // Callback to refresh the album table
+  refreshTable?: () => void; // Callback to refresh the album table
 }
 
 const EditAlbumDialog = ({ album, refreshTable }: EditAlbumDialogProps) => {
@@ -114,7 +114,7 @@ const EditAlbumDialog = ({ album, refreshTable }: EditAlbumDialogProps) => {
       });
 
       const response = await axiosInstance.put(
-        `/admin/albums/${album._id}`,
+        `/admin/albums/update/${album._id}`,
         formData,
         {
           headers: {
@@ -143,7 +143,7 @@ const EditAlbumDialog = ({ album, refreshTable }: EditAlbumDialogProps) => {
       }
       setAlbumDialogOpen(false);
       toast.success("Album updated successfully");
-      refreshTable(); // Refresh the album table
+      refreshTable?.(); // Refresh the album table if defined
     } catch (error: any) {
       toast.error(
         `Failed to update album: ${error.message || "Unknown error"}`

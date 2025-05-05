@@ -17,19 +17,21 @@ import { useChatStore } from "@/stores/useChatStoreDjango";
 const MainLayout = () => {
   const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
-  const { hasLyrics } = usePlayerStore();
+  const { hasLyrics, currentSong } = usePlayerStore();
   const { isChatPage, setIsChatPage } = useChatStore();
 
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    location.pathname === "/chat" ? setIsChatPage(true) : setIsChatPage(false);
 
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+  useEffect(() => {
+    setIsChatPage(location.pathname === "/chat");
+  }, [location.pathname, setIsChatPage]);
 
   return (
     <div className="h-screen bg-black text-white flex flex-col">
@@ -60,12 +62,16 @@ const MainLayout = () => {
 
             {/* right sidebar */}
             <ResizablePanel
-              defaultSize={20}
+              defaultSize={18}
               minSize={0}
-              maxSize={25}
+              maxSize={18}
               collapsedSize={0}
             >
-              {isChatPage ? <FriendsActivity /> : <VideoPlayer />}
+              {!isChatPage && currentSong ? (
+                <VideoPlayer />
+              ) : (
+                <FriendsActivity />
+              )}
             </ResizablePanel>
           </>
         )}

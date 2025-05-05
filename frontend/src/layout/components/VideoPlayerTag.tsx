@@ -7,13 +7,11 @@ const VideoPlayer = () => {
 
   const { currentSong, isPlaying, playNext, isRepeat } = usePlayerStore();
 
-  // handle play/pause logic
   useEffect(() => {
     if (isPlaying) videoRef.current?.play();
     else videoRef.current?.pause();
   }, [isPlaying]);
 
-  // handle song ends
   useEffect(() => {
     const video = videoRef.current;
 
@@ -34,12 +32,9 @@ const VideoPlayer = () => {
     if (!videoRef.current || !currentSong) return;
 
     const audio = videoRef.current;
-
-    // check if this is actually a new song
     const isSongChange = prevSongRef.current !== currentSong?.videoUrl;
     if (isSongChange) {
       audio.src = currentSong?.videoUrl!;
-      // reset the playback position
       audio.currentTime = 0;
 
       prevSongRef.current = currentSong?.audioUrl;

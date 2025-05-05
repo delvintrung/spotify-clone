@@ -30,7 +30,7 @@ interface Album {
 }
 
 const AddAlbumDialog = () => {
-  const { artists, songs } = useMusicStore();
+  const { artists, songs, fetchAlbums } = useMusicStore();
   const [albumDialogOpen, setAlbumDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -97,7 +97,7 @@ const AddAlbumDialog = () => {
       formData.append("releaseYear", newAlbum.releaseYear.toString());
       formData.append("imageFile", imageFile);
       newAlbum.songIds.forEach((songId) => {
-        formData.append("songIds[]", songId); // Use array notation for songIds
+        formData.append("songIds[]", songId);
       });
 
       const res = await axiosInstance.post("/admin/albums", formData, {
@@ -106,9 +106,9 @@ const AddAlbumDialog = () => {
         },
       });
 
-      if (res.status !== 200) {
-        throw new Error("Failed to create album");
-      }
+      // if (res.status !== 200) {
+      //   throw new Error("Failed to create album");
+      // }
 
       // Reset trạng thái
       setNewAlbum({
@@ -123,6 +123,7 @@ const AddAlbumDialog = () => {
       }
       setAlbumDialogOpen(false);
       toast.success("Album created successfully");
+      fetchAlbums();
     } catch (error: any) {
       toast.error("Failed to create album: " + error.message);
     } finally {
